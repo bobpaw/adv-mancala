@@ -35,8 +35,6 @@ addons:
 jobs:
   fast_finish: true
   exclude:
-    - compiler: clang
-      env: GENERATOR="Ninja"
     - os: windows
       env: GENERATOR="Unix Makefiles"
   allow_failures:
