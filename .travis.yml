@@ -17,31 +17,22 @@ os:
   - osx
   - windows
 
-env:
-  - GENERATOR="Ninja"
-  - GENERATOR="Unix Makefiles"
-
 # Install requirements with apt
 addons:
   apt:
     packages:
-    - cmake
+    - cmake # Actually already installed by default
   homebrew:
     packages:
-    - cmake
+    - cmake # Actually already installed by default
     - ccache
 
 # Build Matrix
 jobs:
   fast_finish: true
-  exclude:
-    - os: windows
-      env: GENERATOR="Unix Makefiles"
   allow_failures:
     - os: windows
 
-install:
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install make; fi
 
 before_script:
   - cmake --version
@@ -49,6 +40,6 @@ before_script:
 
 # Actually check if it works
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_PARALLEL_LEVEL=2 -DCMAKE_VERBOSE_MAKEFILE=TRUE ..
+  - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - cmake --build .
   - ctest -j2 -VV
