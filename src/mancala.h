@@ -33,11 +33,10 @@ namespace mancala {
 		*/
 		int player{0};
 
-		Board(Ruleset r = Ruleset::Capture): rules(r) {}
+		Board(Ruleset r = Ruleset::Capture);
 
-		int operator[] (int n) const {
-			return pockets[n];
-		}
+		int operator[] (int n) const { return pockets[n]; }
+		int& operator[] (int n) { return pockets[n]; }
 
 		void move (int n);
 	};

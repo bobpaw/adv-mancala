@@ -3,6 +3,8 @@
 
 #include "mancala.h"
 
+constexpr int BOARD_SIZE = 14;
+
 /**
 * Quickly and concisely test board contents.
 * 
@@ -16,20 +18,21 @@
 * @return Whether the board matched the match-string.
 */
 bool test_board (const mancala::Board& board, std::string match, int width = 1) {
-	std::string chunk;
 	int board_pos = 0;
 	bool equal = true;
-	for (std::size_type pos = 0; equal && pos < match.size; pos += width) {
-		chunk = match.substr(pos, width);
-		switch (chunk[0]) {
+	for (std::string::size_type pos = 0; equal && board_pos < BOARD_SIZE
+		&& pos < match.size(); pos += width) {
+		switch (match[pos]) {
 			case '[':
-				while (board[board_pos] == 0) ++board_pos;
+				while (board_pos < BOARD_SIZE && board[board_pos] == 0) ++board_pos;
 				break;
 			case '?':
 			case '*':
+				++board_pos;
 				continue;
 			default:
-				equal = board[board_pos] == std::stoi(chunk);
+				equal = board[board_pos] == std::stoi(match.substr(pos, width));
+				++board_pos;
 		}
 	}
 
@@ -44,7 +47,17 @@ int main () {
 	b[3] = 2;
 	b[4] = 2;
 
+	assert(test_board(b, "02222"));
+
 	b.move(2);
+	assert(test_board(b, "02033"));
+
+	b.move(1);
+	assert(test_board(b, "00143"));
+
+	b[1] = 4;
+	b.move(1);
+	assert(test_board(b, "002541"));
 
 	return 0;
 }

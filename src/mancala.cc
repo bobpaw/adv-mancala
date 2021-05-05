@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 
 #include "mancala.h"
@@ -9,6 +10,10 @@ namespace {
 
 namespace mancala {
 	// Function definitions, etc.
+
+	Board::Board(Ruleset r): rules(r) {
+		for (auto& v : pockets) v = 0;
+	}
 
 	int Board::move_pieces (int n) {
 		if (pockets[n] == 0) return -1;
