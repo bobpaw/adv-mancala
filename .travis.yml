@@ -1,0 +1,56 @@
+language: cpp
+
+cache: ccache
+
+# Only get the current repository state
+git:
+  depth: false
+
+# Test both clang and gcc
+compiler:
+  - gcc
+  - clang
+
+# Test both linux, and, osx
+os:
+  - linux
+  - osx
+  - windows
+
+env:
+  - GENERATOR="Ninja"
+  - GENERATOR="Unix Makefiles"
+
+# Install requirements with apt
+addons:
+  apt:
+    packages:
+    - cmake
+  homebrew:
+    packages:
+    - cmake
+    - ccache
+
+# Build Matrix
+jobs:
+  fast_finish: true
+  exclude:
+    - compiler: clang
+      env: GENERATOR="Ninja"
+    - os: windows
+      env: GENERATOR="Unix Makefiles"
+#  allow_failures:
+#    - os: windows
+
+install:
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install make; fi
+
+before_script:
+  - cmake --version
+  - mkdir build && cd build
+
+# Actually check if it works
+script:
+  - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_BUILD_PARALLEL_LEVEL=2 -DCMAKE_VERBOSE_MAKEFILE=TRUE ..
+  - cmake --build .
+  - ctest -j2 -VV
