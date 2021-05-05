@@ -26,12 +26,14 @@ namespace mancala {
 		*/
 		int move_pieces (int n);
 	public:
-		enum class Ruleset: int { Capture = 0, Avalanche = 1 } rules;
+		enum class Ruleset: int { Capture = 0, Avalanche = 1 } rules{Ruleset::Capture};
 
 		/**
 		* The active player. 0 or 1.
 		*/
-		int player;
+		int player{0};
+
+		Board(Ruleset r = Ruleset::Capture): rules(r) {}
 
 		int operator[] (int n) const {
 			return pockets[n];
