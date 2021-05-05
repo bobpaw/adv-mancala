@@ -39,8 +39,8 @@ jobs:
       env: GENERATOR="Ninja"
     - os: windows
       env: GENERATOR="Unix Makefiles"
-#  allow_failures:
-#    - os: windows
+  allow_failures:
+    - os: windows
 
 install:
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install make; fi
