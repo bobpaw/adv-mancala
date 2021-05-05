@@ -40,6 +40,6 @@ before_script:
 
 # Actually check if it works
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Debug ..
+  - cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ..
   - cmake --build .
   - ctest -j2 -VV

@@ -1,5 +1,3 @@
-message("test_mancala test file: $<TARGET_FILE:test_mancala>")
-
 add_test(
 	NAME
 		MancalaTest
