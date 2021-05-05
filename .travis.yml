@@ -17,6 +17,9 @@ os:
   - osx
   - windows
 
+env:
+  - GENERATOR="Ninja"
+
 # Install requirements with apt
 addons:
   apt:
@@ -40,6 +43,6 @@ before_script:
 
 # Actually check if it works
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ..
+  - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - cmake --build .
   - ctest -j2 -VV
