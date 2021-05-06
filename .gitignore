@@ -41,3 +41,4 @@ out/
 # VisualStudio/VS Code
 .vscode/
 .vs/
+CMakeSettings.json
