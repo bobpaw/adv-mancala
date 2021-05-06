@@ -18,7 +18,7 @@ os:
   - windows
 
 env:
-  - GENERATOR="Ninja"
+  - CMAKE_GENERATOR="Ninja"
 
 # Install requirements with apt
 addons:
@@ -33,6 +33,11 @@ addons:
 # Build Matrix
 jobs:
   fast_finish: true
+  include:
+  - os: windows
+    env: CMAKE_GENERATOR_TOOLSET="host=x86"
+  - os: windows
+    env: CMAKE_GENERATOR_TOOLSET="host=x64"
   allow_failures:
     - os: windows
 
