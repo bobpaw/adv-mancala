@@ -45,4 +45,4 @@ before_script:
 script:
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
   - cmake --build .
-  - ctest -j2 -VV
+  - ctest -j2 -VV -C Debug
