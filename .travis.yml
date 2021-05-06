@@ -38,7 +38,7 @@ jobs:
 
 
 before_script:
-  - cmake --version
+  - cmake --help --version
   - mkdir build && cd build
 
 # Actually check if it works
