@@ -8,12 +8,15 @@ constexpr int BOARD_SIZE = 14;
 /**
 * Quickly and concisely test board contents.
 * 
+* A match string consists of multiple fields of the same width each containing
+* a single value. Numerical values represent themselves. Asterisks (`*`) and
+* question marks (`?`) are interpreted as wild cards and match any value. Open
+* square braces (`[`) hungry match zeroes. For special wildcard values, only
+* the first character in the field must be the special value, but it must still
+* use the entire width. "[0011" is not okay and not equal to "[[0011"
+* 
 * @param board The mancala board to check.
-* @param match A null-terminated string to check against. Width must be the
-* same for every value and is inferred from string length. Asterisks (`*`) and
-* question marks (`?`) are interpreted as single width wild cards and match any value.
-* Opening square braces (`[`) hungry match zeroes. Square braces
-* must take up the same width as other values.
+* @param match A match string.
 * @param width The width of values.
 * @return Whether the board matched the match-string.
 */
