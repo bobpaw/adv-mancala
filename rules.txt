@@ -1,0 +1,22 @@
+Rules:
+The board consists of 6 small slots on each side, with the side on the bottom, "closest" to you
+being yours, as well as two large slots on the ends. The large slot on the right is also yours.
+This large slot is called the Mancala.
+The goal of the game is to capture the most pieces in your Mancala.
+
+On your turn:
+
+-Select one of the small slots on your side, and confirm this selection.
+-The pieces in the slot will be picked up, and starting from the slot immediately to the right,
+one will be placed in each slot, traveling the board counter-clockwise, including your 
+Mancala, but not your opponent's. The pieces will travel in this matter until all the 
+pieces are deposited.
+- If the last piece is deposited in your own Mancala, you take another turn.
+- If the last piece is deposited in an empty small slot on your side, take all the pieces in 
+your opponent's slot directly opposite it and deposit them directly in your Mancala.
+
+Win condition:
+
+Once all of one player's small slots are empty, the game ends. The player who still has 
+pieces in their slots places all those pieces into their Mancala. At this point, the player
+with the most pieces in their Mancala wins.
