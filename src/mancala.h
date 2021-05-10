@@ -39,5 +39,7 @@ namespace mancala {
 		int& operator[] (int n) { return pockets[n]; }
 
 		void move (int n);
+		void save();
+		void restoreSave();
 	};
 }  // namespace mancala

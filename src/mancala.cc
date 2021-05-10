@@ -1,7 +1,12 @@
 #include <algorithm>
 #include <cassert>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
 
 #include "mancala.h"
+using namespace std;
 
 namespace {
 	// Static functions, etc.
@@ -56,4 +61,37 @@ namespace mancala {
 				break;
 		}
 	}
-}  // namespace mancala
+
+	void Board::save() { 
+		fstream fout;
+		fout.open("saveState.csv", ios::out | ios::trunc);
+		for (int i = 0; i < sizeof(pockets); i++) { 
+			fout << pockets[i] << ",";
+		}
+
+		fout.close();
+	}
+
+	void Board::restoreSave() { fstream fin;
+		fin.open("saveState.csv", ios::in);
+		string line, value;
+		getline(fin, line);
+		 
+		stringstream s (line);
+
+		int i = 0;
+		while (getline(s, value, ',') && i < sizeof(pockets)) { 
+			int marbleNum = 0;
+			stringstream vs(value);
+			vs >> marbleNum;
+			pockets[i] = marbleNum;
+			i++;
+			
+		}
+		if (i != 14) 
+			cout<< "An Error Has Occurred with the Save File, Please Start a New Game"<< endl;
+		
+
+
+	}
+	}  // namespace mancala
