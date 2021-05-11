@@ -32,6 +32,17 @@ include(CheckIncludeFileCXX)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
+function (add_compile_option_if_available ARG_NAME)
+	string(REGEX REPLACE "^-|\ " "" ARG_STRIPPED "${ARG_NAME}")
+	string(REGEX REPLACE "-" "_" ARG_STRIP_UNDER "${ARG_STRIPPED}")
+	string(TOUPPER "HAVE_${ARG_STRIP_UNDER}" HAVE_ARG_NAME)
+
+	check_cxx_compiler_flag("${ARG_NAME}" ${HAVE_ARG_NAME})
+	if (${HAVE_ARG_NAME})
+		add_compile_options("${ARG_NAME}")
+	endif()
+endfunction() # add_compile_option_if_available
+
 # Put any cache options here
 
 
@@ -45,10 +56,15 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	# Coverage should only be run on linux
 
-	include(CodeCoverage)
+	# Adds gcov options
+	add_compile_options("-g -fprofile-arcs -ftest-coverage")
+	link_libraries(gcov)
 
-	# Adds -ftest-coverage, etc.
-	append_coverage_compiler_flags()
+	# Force use of absolute paths
+	check_cxx_compiler_flag("-fprofile-abs-path" HAVE_FPROFILE_ABS_PATH)
+	if(HAVE_FPROFILE_ABS_PATH)
+		add_compile_options("-fprofile-abs-path")
+	endif()
 
 	# Disable compiler optimizations
 	check_cxx_compiler_flag("-fkeep-inline-functions" HAVE_KEEP_INLINE)
