@@ -61,10 +61,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	link_libraries(gcov)
 
 	# Force use of absolute paths
-	check_cxx_compiler_flag("-fprofile-abs-path" HAVE_FPROFILE_ABS_PATH)
-	if(HAVE_FPROFILE_ABS_PATH)
-		add_compile_options("-fprofile-abs-path")
-	endif()
+	add_compile_option_if_available("-fprofile-abs-path")
 
 	# Disable compiler optimizations
 	check_cxx_compiler_flag("-fkeep-inline-functions" HAVE_KEEP_INLINE)
