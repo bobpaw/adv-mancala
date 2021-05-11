@@ -51,7 +51,6 @@ jobs:
     - ctest -C Coverage
     - cd ..
     after_success:
-    - make coverage
     - coveralls --exclude "doc" --exclude "test/" --exclude ".*CMakeFiles.*"
 
 
