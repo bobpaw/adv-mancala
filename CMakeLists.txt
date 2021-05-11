@@ -33,7 +33,7 @@ include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
 function (add_compile_options_if_available)
-	foreach(ARG_NAME in LISTS ARGN)
+	foreach(ARG_NAME "${ARGN}")
 		string(REGEX REPLACE "^-|\ " "" ARG_STRIPPED "${ARG_NAME}")
 		string(REGEX REPLACE "-" "_" ARG_STRIP_UNDER "${ARG_STRIPPED}")
 		string(TOUPPER "HAVE_${ARG_STRIP_UNDER}" HAVE_ARG_NAME)
