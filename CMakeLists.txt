@@ -21,7 +21,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # This expects you to have modules. Uncomment if you do
-# list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # CTest if this is the top-level project
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -38,6 +38,16 @@ if ($<CONFIG:Debug>)
 	# Enable most compiler warnings if a debug build
 	add_compile_options(${PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>)
 	add_compile_options(${PROJECT_NAME} PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Werror>)
+elseif ($<CONFIG:Coverage>)
+	# Coverage should only be run on linux
+
+	include(CodeCoverage)
+
+	# Adds -ftest-coverage, etc.
+	append_coverage_compiler_flags()
+
+	# Disable compiler optimizations
+	add_compile_options(${PROJECT_NAME} PRIVATE -O0 -fkeep-inline-functions -fkeep-static-functions)
 endif()
 
 # Add the binary directory to includes to be safe
