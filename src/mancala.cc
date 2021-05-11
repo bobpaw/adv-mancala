@@ -16,8 +16,6 @@ namespace mancala {
 	}
 
 	int Board::move_pieces (int n) {
-		if (pockets[n] == 0) return -1;
-
 		int hand = pockets[n];
 		pockets[n] = 0;
 		while (hand > 0) {
@@ -30,36 +28,32 @@ namespace mancala {
 		return n;
 	}
 
-	void Board::move (int n) {
+	int Board::move(int n) {
+		if (pockets[n] == 0) return -1;
+
 		switch (rules) {
-			case Ruleset::Capture:
-				if (pockets[n] == 0) break;
+		case Ruleset::Capture:
+			if (pockets[n] == 0) break;
 
-				n = move_pieces(n);
+			n = move_pieces(n);
 
-				// If n is the player's mancala, don't swap the active player.
-				if (n == (player ^ 1) * 7) break;
+			// If n is the player's mancala, don't swap the active player.
+			if (n == (player ^ 1) * 7) break;
 
-				// If on player's side and an empty mancala, perform capture.
-				if ((player == 0 && n < 7 || player == 1 && n > 7)
-					&& pockets[n] == 1) {
-					pockets[(player ^ 1) * 7] += pockets[pockets.size() - n];
-					pockets[pockets.size() - n] = 0;
-				}
+			// If on player's side and an empty mancala, perform capture.
+			if ((player == 0 && n < 7 || player == 1 && n > 7) && pockets[n] == 1) {
+				pockets[(player ^ 1) * 7] += pockets[pockets.size() - n];
+				pockets[pockets.size() - n] = 0;
+			}
 
-				// Swap active player
-				player ^= 1;
+			// Swap active player
+			player ^= 1;
 
-				break;
-			case Ruleset::Avalanche:
-				// TODO: Implement Avalanche mode
-				break;
+			break;
+		case Ruleset::Avalanche:
+			// TODO: Implement Avalanche mode
+			break;
 		}
-	}
-
-	Board Board::preview(int n) {
-		Board ret = *this;
-		ret.move(n);
-		return ret;
+		return 0;
 	}
 }  // namespace mancala
