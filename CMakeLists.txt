@@ -17,7 +17,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 		STRING "Choose the type of build." FORCE)
 	# Set the possible values of build type for cmake-gui
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-		"Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+		"Debug" "Release" "MinSizeRel" "RelWithDebInfo" "Coverage")
 endif()
 
 # This expects you to have modules. Uncomment if you do
@@ -34,11 +34,11 @@ include(CheckIncludeFile)
 # Put any cache options here
 
 
-if ($<CONFIG:Debug>)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# Enable most compiler warnings if a debug build
 	add_compile_options(${PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>)
 	add_compile_options(${PROJECT_NAME} PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Werror>)
-elseif ($<CONFIG:Coverage>)
+elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	# Coverage should only be run on linux
 
 	include(CodeCoverage)
