@@ -17,7 +17,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 		STRING "Choose the type of build." FORCE)
 	# Set the possible values of build type for cmake-gui
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-		"Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+		"Debug" "Release" "MinSizeRel" "RelWithDebInfo" "Coverage")
 endif()
 
 # This expects you to have modules. Uncomment if you do
@@ -30,14 +30,42 @@ endif()
 
 include(CheckIncludeFileCXX)
 include(CheckIncludeFile)
+include(CheckCXXCompilerFlag)
+
+function (add_compile_options_if_available)
+	foreach(ARG_NAME ${ARGN})
+		string(REGEX REPLACE "^-|\ " "" ARG_STRIPPED "${ARG_NAME}")
+		string(REGEX REPLACE "-" "_" ARG_STRIP_UNDER "${ARG_STRIPPED}")
+		string(TOUPPER "HAVE_${ARG_STRIP_UNDER}" HAVE_ARG_NAME)
+
+		check_cxx_compiler_flag("${ARG_NAME}" ${HAVE_ARG_NAME})
+		if (${HAVE_ARG_NAME})
+			add_compile_options("${ARG_NAME}")
+		endif()
+	endforeach()
+endfunction() # add_compile_options_if_available
 
 # Put any cache options here
 
 
-if ($<CONFIG:Debug>)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# Enable most compiler warnings if a debug build
-	add_compile_options(${PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:MSVC>:/W4 /WX>)
-	add_compile_options(${PROJECT_NAME} PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic -Werror>)
+	if (MSVC)
+		add_compile_options("/W4" "/WX")
+	else()
+		add_compile_options("-Wall" "-Wextra" "-pedantic")
+	endif()
+elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
+	# Coverage should only be run on linux
+
+	# Adds gcov options
+	add_compile_options("-g" "-fprofile-arcs" "-ftest-coverage")
+	link_libraries(gcov)
+
+	# Force absolute paths and disable compiler optimizations
+	add_compile_options_if_available("-fprofile-abs-path" "-fkeep-inline-functions" "-fkeep-static-functions")
+	
+	add_compile_options("-O0")
 endif()
 
 # Add the binary directory to includes to be safe
@@ -49,7 +77,7 @@ find_library(MATH_FOUND m)
 if ($<VERSION_GREATER_EQUAL:"${CMAKE_VERSION}","3.12">)
 	add_compile_definitions(HAVE_CMAKE_CONFIG_H)
 else()
-	add_compile_options(-DHAVE_CMAKE_CONFIG_H)
+	add_compile_options("-DHAVE_CMAKE_CONFIG_H")
 endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/cmakeconfig.h.in" "${PROJECT_BINARY_DIR}/cmakeconfig.h" ESCAPE_QUOTES @ONLY)
