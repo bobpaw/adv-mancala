@@ -30,6 +30,7 @@ endif()
 
 include(CheckIncludeFileCXX)
 include(CheckIncludeFile)
+include(CheckCXXCompilerFlag)
 
 # Put any cache options here
 
@@ -50,7 +51,10 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	append_coverage_compiler_flags()
 
 	# Disable compiler optimizations
-	add_compile_options("-O0" "-fkeep-inline-functions" "-fkeep-static-functions")
+	check_cxx_compiler_flag("-fkeep-inline-functions" HAVE_KEEP_INLINE)
+	check_cxx_compiler_flag("-fkeep-static-functions" HAVE_KEEP_STATIC)
+
+	add_compile_options("-O0" "$<$<BOOL:HAVE_KEEP_INLINE>:-fkeep-inline-functions>" "$<$<BOOL:HAVE_KEEP_STATIC>:-fkeep-static-functions>")
 endif()
 
 # Add the binary directory to includes to be safe
