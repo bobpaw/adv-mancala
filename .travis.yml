@@ -38,14 +38,14 @@ jobs:
     os: linux
     compiler: g++
     before_script:
-    - pip install --user cpp-coveralls
+    - pip3 install --user cpp-coveralls
     - mkdir build && cd build
     script:
     - cmake -DCMAKE_BUILD_TYPE=Coveralls ..
-    - cmake --build .
+    - VERBOSE=1 cmake --build .
     - ctest -C Coveralls
     after_success:
-    - coveralls --exclude doc --exclude test -r .. -b . --gcov-options '\-lp'
+    - coveralls --exclude doc --exclude test --exclude build -r .. -b . --dryrun --gcov-options '\-lp'
 
 
 
