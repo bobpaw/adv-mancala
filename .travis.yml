@@ -38,10 +38,6 @@ jobs:
     os: linux
     compiler: g++
     ccache: false
-    addons:
-      apt:
-        packages:
-          - lcov
     before_script:
     - pip install --user cpp-coveralls
     - mkdir build && cd build
