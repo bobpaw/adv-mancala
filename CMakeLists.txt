@@ -36,10 +36,10 @@ include(CheckIncludeFile)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# Enable most compiler warnings if a debug build
-	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-		add_compile_options(${PROJECT_NAME} PRIVATE "/W4" "/WX")
+	if (MSVC)
+		add_compile_options("/W4" "/WX")
 	else()
-		add_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Wextra" "-pedantic" "-Werror")
+		add_compile_options("-Wall" "-Wextra" "-pedantic" "-Werror")
 	endif()
 elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	# Coverage should only be run on linux
@@ -50,7 +50,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	append_coverage_compiler_flags()
 
 	# Disable compiler optimizations
-	add_compile_options(${PROJECT_NAME} PRIVATE -O0 -fkeep-inline-functions -fkeep-static-functions)
+	add_compile_options("-O0" "-fkeep-inline-functions" "-fkeep-static-functions")
 endif()
 
 # Add the binary directory to includes to be safe
@@ -62,7 +62,7 @@ find_library(MATH_FOUND m)
 if ($<VERSION_GREATER_EQUAL:"${CMAKE_VERSION}","3.12">)
 	add_compile_definitions(HAVE_CMAKE_CONFIG_H)
 else()
-	add_compile_options(-DHAVE_CMAKE_CONFIG_H)
+	add_compile_options("-DHAVE_CMAKE_CONFIG_H")
 endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/cmakeconfig.h.in" "${PROJECT_BINARY_DIR}/cmakeconfig.h" ESCAPE_QUOTES @ONLY)
