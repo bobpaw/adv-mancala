@@ -39,5 +39,8 @@ namespace mancala {
 		int& operator[] (int n) { return pockets[n]; }
 
 		void move (int n);
+
+		// Returns the board status after move(n) without changing it.
+		Board preview(int n);
 	};
 }  // namespace mancala

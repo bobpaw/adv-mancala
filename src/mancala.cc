@@ -56,4 +56,10 @@ namespace mancala {
 				break;
 		}
 	}
+
+	Board Board::preview(int n) {
+		Board ret = *this;
+		ret.move(n);
+		return ret;
+	}
 }  // namespace mancala
