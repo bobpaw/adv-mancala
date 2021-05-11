@@ -32,15 +32,17 @@ include(CheckIncludeFileCXX)
 include(CheckIncludeFile)
 include(CheckCXXCompilerFlag)
 
-function (add_compile_option_if_available ARG_NAME)
-	string(REGEX REPLACE "^-|\ " "" ARG_STRIPPED "${ARG_NAME}")
-	string(REGEX REPLACE "-" "_" ARG_STRIP_UNDER "${ARG_STRIPPED}")
-	string(TOUPPER "HAVE_${ARG_STRIP_UNDER}" HAVE_ARG_NAME)
+function (add_compile_options_if_available)
+	foreach(ARG_NAME in LISTS ARGN)
+		string(REGEX REPLACE "^-|\ " "" ARG_STRIPPED "${ARG_NAME}")
+		string(REGEX REPLACE "-" "_" ARG_STRIP_UNDER "${ARG_STRIPPED}")
+		string(TOUPPER "HAVE_${ARG_STRIP_UNDER}" HAVE_ARG_NAME)
 
-	check_cxx_compiler_flag("${ARG_NAME}" ${HAVE_ARG_NAME})
-	if (${HAVE_ARG_NAME})
-		add_compile_options("${ARG_NAME}")
-	endif()
+		check_cxx_compiler_flag("${ARG_NAME}" ${HAVE_ARG_NAME})
+		if (${HAVE_ARG_NAME})
+			add_compile_options("${ARG_NAME}")
+		endif()
+	endforeach()
 endfunction() # add_compile_option_if_available
 
 # Put any cache options here
@@ -60,12 +62,8 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	add_compile_options("-g" "-fprofile-arcs" "-ftest-coverage")
 	link_libraries(gcov)
 
-	# Force use of absolute paths
-	add_compile_option_if_available("-fprofile-abs-path")
-
-	# Disable compiler optimizations
-	add_compile_option_if_available("-fkeep-inline-functions")
-	add_compile_option_if_available("-fkeep-static-functions" HAVE_KEEP_STATIC)
+	# Force absolute paths and disable compiler optimizations
+	add_compile_option_if_available("-fprofile-abs-path" "-fkeep-inline-functions" "-fkeep-static-functions")
 	
 	add_compile_options("-O0")
 endif()
