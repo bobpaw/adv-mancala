@@ -43,7 +43,7 @@ function (add_compile_options_if_available)
 			add_compile_options("${ARG_NAME}")
 		endif()
 	endforeach()
-endfunction() # add_compile_option_if_available
+endfunction() # add_compile_options_if_available
 
 # Put any cache options here
 
@@ -63,7 +63,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	link_libraries(gcov)
 
 	# Force absolute paths and disable compiler optimizations
-	add_compile_option_if_available("-fprofile-abs-path" "-fkeep-inline-functions" "-fkeep-static-functions")
+	add_compile_options_if_available("-fprofile-abs-path" "-fkeep-inline-functions" "-fkeep-static-functions")
 	
 	add_compile_options("-O0")
 endif()
