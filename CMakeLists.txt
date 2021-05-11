@@ -37,9 +37,9 @@ include(CheckIncludeFile)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	# Enable most compiler warnings if a debug build
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-		add_compile_options(${PROJECT_NAME} PRIVATE "/W4 /WX")
+		add_compile_options(${PROJECT_NAME} PRIVATE "/W4" "/WX")
 	else()
-		add_compile_options(${PROJECT_NAME} PRIVATE "-Wall -Wextra -pedantic -Werror")
+		add_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Wextra" "-pedantic" "-Werror")
 	endif()
 elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	# Coverage should only be run on linux
