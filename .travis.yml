@@ -38,7 +38,7 @@ jobs:
     os: linux
     compiler: g++
     before_script:
-    - pip3 install --user cpp-coveralls
+    - python3 -m pip install --user cpp-coveralls
     - mkdir build && cd build
     script:
     - cmake -DCMAKE_BUILD_TYPE=Coveralls ..
