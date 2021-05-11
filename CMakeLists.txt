@@ -21,7 +21,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # This expects you to have modules. Uncomment if you do
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+# list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # CTest if this is the top-level project
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -64,10 +64,10 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	add_compile_option_if_available("-fprofile-abs-path")
 
 	# Disable compiler optimizations
-	check_cxx_compiler_flag("-fkeep-inline-functions" HAVE_KEEP_INLINE)
-	check_cxx_compiler_flag("-fkeep-static-functions" HAVE_KEEP_STATIC)
+	add_compile_option_if_available("-fkeep-inline-functions")
+	add_compile_option_if_available("-fkeep-static-functions" HAVE_KEEP_STATIC)
 	
-	add_compile_options("-O0" "$<$<BOOL:${HAVE_KEEP_INLINE}>:-fkeep-inline-functions>" "$<$<BOOL:${HAVE_KEEP_STATIC}>:-fkeep-static-functions>")
+	add_compile_options("-O0")
 endif()
 
 # Add the binary directory to includes to be safe
