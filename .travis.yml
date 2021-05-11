@@ -47,7 +47,7 @@ jobs:
     - ctest -C Coverage
     - cd ..
     after_success:
-    - coveralls -e "doc/" -e "test/" -E ".*CMakeFiles.*"
+    - coveralls -e "doc/" -E ".*test.*" -E ".*CMakeFiles.*"
 
 
 
