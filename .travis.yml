@@ -34,6 +34,17 @@ jobs:
     env: CMAKE_GENERATOR="Visual Studio 15 2017"
   - os: windows
     env: CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
+  - stage: Coverage
+    os: linux
+    before_script:
+    - pip install --user cpp-coveralls
+    - mkdir build && cd build
+    script:
+    - cmake -DCMAKE_BUILD_TYPE=Coveralls ..
+    - ctest -C Coveralls
+    after_success:
+    - coveralls --exclude doc --exclude test
+
 
 
 before_script:
