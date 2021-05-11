@@ -57,7 +57,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	# Coverage should only be run on linux
 
 	# Adds gcov options
-	add_compile_options("-g -fprofile-arcs -ftest-coverage")
+	add_compile_options("-g" "-fprofile-arcs" "-ftest-coverage")
 	link_libraries(gcov)
 
 	# Force use of absolute paths
