@@ -42,9 +42,10 @@ jobs:
     - mkdir build && cd build
     script:
     - cmake -DCMAKE_BUILD_TYPE=Coveralls ..
+    - cmake --build .
     - ctest -C Coveralls
     after_success:
-    - coveralls --exclude doc --exclude test
+    - coveralls --exclude doc --exclude test -r .. -b . --gcov-options '\-lp'
 
 
 
