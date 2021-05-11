@@ -3,10 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream>
 
 #include "mancala.h"
-using namespace std;
 
 namespace {
 	// Static functions, etc.
@@ -62,36 +60,60 @@ namespace mancala {
 		}
 	}
 
-	void Board::save() { 
-		fstream fout;
-		fout.open("saveState.csv", ios::out | ios::trunc);
-		for (int i = 0; i < sizeof(pockets); i++) { 
-			fout << pockets[i] << ",";
+	void Board::save() const { 
+		std::ofstream fout;
+		fout.open("saveState.dat", std::ios::out | std::ios::trunc);
+		fout << player << std::endl;
+		fout << int(rules) << std::endl;
+		for (int i = 0; i < pockets.size(); ++i) {
+			fout << pockets[i] << std::endl;
 		}
 
 		fout.close();
 	}
 
-	void Board::restoreSave() { fstream fin;
-		fin.open("saveState.csv", ios::in);
-		string line, value;
-		getline(fin, line);
-		 
-		stringstream s (line);
+	void Board::load() {
+		std::ifstream fin;
+		fin.open("saveState.dat");
+		std::string line;
+
+		std::getline(fin, line);
+
+		try {
+			player = std::stoi(line);
+		} catch (std::invalid_argument) {
+			std::cerr << "Invalid player value." << std::endl;
+			return; // Possibly recover
+		} catch (std::out_of_range) {
+			std::cerr << "Invalid player value." << std::endl;
+			return; // Possibly recover
+		}
+
+		std::getline(fin, line);
+		try {
+			rules = Ruleset(std::stoi(line));
+		} catch (std::invalid_argument) {
+			std::cerr << "Invalid ruleset value." << std::endl;
+			return; // Possibly recover here.
+		} catch (std::out_of_range) {
+			std::cerr << "Invalid ruleset value." << std::endl;
+			return; // Possibly recover here.
+		}
 
 		int i = 0;
-		while (getline(s, value, ',') && i < sizeof(pockets)) { 
+		while (std::getline(fin, line) && i < pockets.size()) { 
 			int marbleNum = 0;
-			stringstream vs(value);
-			vs >> marbleNum;
-			pockets[i] = marbleNum;
-			i++;
-			
+			try {
+				pockets[i] = std::stoi(line);
+			} catch (std::invalid_argument) {
+				break;
+			} catch (std::out_of_range) {
+				break;
+			}
+			++i;
 		}
-		if (i != 14) 
-			cout<< "An Error Has Occurred with the Save File, Please Start a New Game"<< endl;
-		
-
+		if (i != 14)
+			std::cerr << "An error has occured while loading your save. Please exit and start a new game." << std::endl;
 
 	}
 	}  // namespace mancala
