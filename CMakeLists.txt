@@ -39,7 +39,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 	if (MSVC)
 		add_compile_options("/W4" "/WX")
 	else()
-		add_compile_options("-Wall" "-Wextra" "-pedantic" "-Werror")
+		add_compile_options("-Wall" "-Wextra" "-pedantic")
 	endif()
 elseif (CMAKE_BUILD_TYPE STREQUAL "Coverage")
 	# Coverage should only be run on linux
