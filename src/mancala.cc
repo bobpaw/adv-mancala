@@ -66,7 +66,7 @@ namespace mancala {
 		fout.open("saveState.dat", std::ios::out | std::ios::trunc);
 		fout << player << std::endl;
 		fout << int(rules) << std::endl;
-		for (int i = 0; i < pockets.size(); ++i) {
+		for (unsigned i = 0; i < pockets.size(); ++i) {
 			fout << pockets[i] << std::endl;
 		}
 
