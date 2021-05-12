@@ -22,5 +22,6 @@ int main() {
 
     game.move(moveNum);
   }
-  
+
+	return 0;
 }
