@@ -53,5 +53,8 @@ namespace mancala {
 
 		// Check if pockets are equal
 		bool operator==(Board other) const { return pockets == other.pockets; }
+    
+    void save() const;
+		void load();
 	};
 }  // namespace mancala
