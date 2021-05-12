@@ -62,5 +62,10 @@ int main () {
 	b.move(1);
 	assert(test_board(b, "002541"));
 
+	auto b2 = b.preview(3);
+	b.move(3); // 000651
+	assert(b == b2);
+
+	assert(b.move(1) == -1);
 	return 0;
 }

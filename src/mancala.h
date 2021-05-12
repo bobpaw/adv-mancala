@@ -17,13 +17,6 @@ namespace mancala {
 		*/
 		std::array<int, 14> pockets;
 
-		/**
-		* Move the pieces in a loop.
-		* 
-		* @param n The pocket to move from.
-		* @return The pocket into which the last piece was deposited
-		* or -1 if the move failed.
-		*/
 		int move_pieces (int n);
 	public:
 		enum class Ruleset: int { Capture = 0, Avalanche = 1 } rules{Ruleset::Capture};
@@ -38,8 +31,30 @@ namespace mancala {
 		int operator[] (int n) const { return pockets[n]; }
 		int& operator[] (int n) { return pockets[n]; }
 
-		void move (int n);
-		void save() const;
+		/**
+		* Make a move.
+		* 
+		* @param n The pocket to move.
+		* @returns -1 if the pocket was empty or 0 on success.
+		*/
+		int move (int n);
+
+		/**
+		* Preview a move.
+		* 
+		* @param n The pocket to move. Passed through to Board::move.
+		* @returns A copy of the current board after invoking move(n).
+		*/
+		Board preview(int n) const {
+			Board ret = *this;
+			ret.move(n);
+			return ret;
+		}
+
+		// Check if pockets are equal
+		bool operator==(Board other) const { return pockets == other.pockets; }
+    
+    void save() const;
 		void load();
 	};
 }  // namespace mancala
