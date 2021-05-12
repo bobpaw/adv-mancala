@@ -133,7 +133,7 @@ std::ostream& operator<<(std::ostream& out, const Board& board) {
 		out << std::endl;
 	}
 	out << std::setw(width) << std::setfill(' ') << " ";
-	out << std::setw(width) << std::setfill('0') << board[6];
+	out << std::setw(width) << std::setfill('0') << board[7];
 
 	// Reset fill and width
 	out.width(old_width);
