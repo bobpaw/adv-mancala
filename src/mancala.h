@@ -1,4 +1,5 @@
 #include <array>
+#include <ostream>
 
 namespace mancala {
 class Board {
@@ -57,6 +58,7 @@ public:
 
 	// Check if pockets are equal
 	bool operator==(Board other) const { return pockets == other.pockets; }
+	friend std::ostream& operator<<(std::ostream& out, const Board& board);
 
 	void save() const;
 	void load();

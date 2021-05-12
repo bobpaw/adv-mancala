@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -113,5 +114,31 @@ void Board::load() {
 		std::cerr << "An error has occured while loading your save. Please exit "
 								 "and start a new game."
 							<< std::endl;
+}
+
+std::ostream& operator<<(std::ostream& out, const Board& board) {
+	auto old_width = out.width();
+	auto old_fill = out.fill();
+
+	int width = 2;
+
+	out << std::setw(width) << std::setfill(' ') << " ";
+	out << std::setw(width) << std::setfill('0') << board[0];
+	out << std::endl;
+
+	for (unsigned i = 1; i < 14 / 2; ++i) {
+		out << std::setw(width) << std::setfill('0') << board[i];
+		out << std::setw(width) << std::setfill(' ') << " ";
+		out << std::setw(width) << std::setfill('0') << board[14 - i];
+		out << std::endl;
+	}
+	out << std::setw(width) << std::setfill(' ') << " ";
+	out << std::setw(width) << std::setfill('0') << board[6];
+
+	// Reset fill and width
+	out.width(old_width);
+	out.fill(old_fill);
+
+	return out;
 }
 }  // namespace mancala
