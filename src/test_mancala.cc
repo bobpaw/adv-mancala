@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 #include <string>
 
 #include "mancala.h"
@@ -65,5 +66,17 @@ int main() {
 	assert(b == b2);
 
 	assert(b.move(1) == -1);
+
+	std::cout << b << std::endl;
+
+	mancala::Board b3;
+
+	for (unsigned i = 1; i < 7; ++i) {
+		b3[i] = 6;
+		b3[7 + i] = 6;
+	}
+
+	std::cout << b3 << std::endl;
+
 	return 0;
 }
