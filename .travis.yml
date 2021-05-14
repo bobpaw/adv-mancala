@@ -43,7 +43,7 @@ jobs:
     - mkdir build && cd build
     script:
     - cmake -DCMAKE_BUILD_TYPE=Coverage ..
-    - VERBOSE=1 cmake --build .
+    - cmake --build .
     - ctest -C Coverage
     - cd ..
     after_success:
