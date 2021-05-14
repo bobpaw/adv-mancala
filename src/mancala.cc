@@ -35,7 +35,6 @@ int Board::move(int n) {
 
 	switch (rules) {
 	case Ruleset::Capture:
-		if (pockets[n] == 0) break;
 
 		n = move_pieces(n);
 
@@ -53,7 +52,12 @@ int Board::move(int n) {
 
 		break;
 	case Ruleset::Avalanche:
-		// TODO: Implement Avalanche mode
+		
+		while (n != (player ^ 1) * 7 && pockets[n] != 1)
+			n = move_pieces(n);
+
+		// If last piece didn't land in active player's mancala swap active player.
+		if (n != (player ^ 1) * 7) player ^= 1;
 		break;
 	}
 	return 0;
