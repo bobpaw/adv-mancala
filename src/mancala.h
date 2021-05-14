@@ -31,7 +31,7 @@ public:
 	 */
 	int player{0};
 
-	Board(Ruleset r = Ruleset::Capture);
+	constexpr Board(Ruleset r = Ruleset::Capture): pockets{}, rules(r), player(0) {}
 
 	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }

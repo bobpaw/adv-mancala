@@ -15,8 +15,6 @@ namespace {
 namespace mancala {
 // Function definitions, etc.
 
-Board::Board(Ruleset r): pockets{}, rules(r) {}
-
 int Board::move_pieces(int n) {
 	int hand = pockets[n];
 	pockets[n] = 0;
