@@ -33,10 +33,10 @@ public:
 
 	Board(Ruleset r = Ruleset::Capture);
 
-	auto  operator[](std::size_t n) const { return pockets[n]; }
-	auto& operator[](std::size_t n) { return pockets[n]; }
+	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
+	int& operator[](std::size_t n) noexcept { return pockets[n]; }
 
-	constexpr auto size() const noexcept { return pockets.size(); }
+	constexpr decltype(pockets)::size_type size() noexcept { return pockets.size(); }
 
 	/**
 	 * Make a move.
