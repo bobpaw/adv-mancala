@@ -31,10 +31,12 @@ public:
 	 */
 	int player{0};
 
-	Board(Ruleset r = Ruleset::Capture);
+	constexpr Board(Ruleset r = Ruleset::Capture): pockets{}, rules(r), player(0) {}
 
-	int operator[](int n) const { return pockets[n]; }
-	int& operator[](int n) { return pockets[n]; }
+	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
+	int& operator[](std::size_t n) noexcept { return pockets[n]; }
+
+	constexpr decltype(pockets)::size_type size() const noexcept { return pockets.size(); }
 
 	/**
 	 * Make a move.
