@@ -36,7 +36,7 @@ public:
 	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }
 
-	constexpr decltype(pockets)::size_type size() noexcept { return pockets.size(); }
+	constexpr decltype(pockets)::size_type size() const noexcept { return pockets.size(); }
 
 	/**
 	 * Make a move.
