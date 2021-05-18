@@ -32,16 +32,16 @@ int main() {
 	std::cout << " Prepend p to preview.\n > " << std::flush;
 
 	while (!endGame && std::getline(std::cin, line)) {
-		unsigned moveNum = 0;
+		int moveNum = 0;
 		if (line[0] == 'p') {
 			try {
 				moveNum = std::stoi(line.substr(1));
 			} catch (const std::invalid_argument&) {
 				std::cerr << "Invalid argument." << std::endl;
-				moveNum = -1u;
+				moveNum = -1;
 			} catch (const std::out_of_range&) {
 				std::cerr << "Input out of range." << std::endl;
-				moveNum = -1u;
+				moveNum = -1;
 			}
 
 			if (moveNum >= 1 && moveNum <= 7) {
@@ -54,10 +54,10 @@ int main() {
 				moveNum = std::stoi(line);
 			} catch (const std::invalid_argument&) {
 				std::cerr << "Invalid argument." << std::endl;
-				moveNum = -1u;
+				moveNum = -1;
 			} catch (const std::out_of_range&) {
 				std::cerr << "Input out of range." << std::endl;
-				moveNum = -1u;
+				moveNum = -1;
 			}
 
 			if (moveNum >= 1 && moveNum <= 7) {

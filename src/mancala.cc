@@ -9,7 +9,11 @@
 
 namespace {
 // Static functions, etc.
-
+	int modulus(int a, int b) {
+		int mod = a % b;
+		if (mod < 0) return mod + b;
+		return mod;
+	}
 }  // namespace
 
 namespace mancala {
@@ -29,6 +33,8 @@ int Board::move_pieces(int n) {
 }
 
 int Board::move(int n) {
+	n = modulus(n, size());
+
 	if (pockets[n] == 0) return -1;
 
 	switch (rules) {
