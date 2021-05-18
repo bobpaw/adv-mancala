@@ -29,7 +29,7 @@ int Board::move_pieces(int n) {
 	int hand = pockets[n];
 	pockets[n] = 0;
 	while (hand > 0) {
-		n = modulus(n + 1, pockets.size());
+		n = modulus(n + 1, static_cast<int>(pockets.size()));
 		if (n == their_mancala()) continue;
 		--hand;
 		++pockets[n];
@@ -42,7 +42,7 @@ int Board::move_pieces(int n) {
 }
 
 int Board::move(int n) {
-	n = modulus(n, size());
+	n = modulus(n, static_cast<int>(size()));
 
 	if (pockets[n] == 0) return -1;
 
