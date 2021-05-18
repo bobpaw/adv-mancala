@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8) # First version with CMP0067
 project(adv-mancala VERSION 0.0 LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 cmake_policy(SET CMP0067 NEW) # Force CMake to observe CXX_STANDARD in checks
 
@@ -48,7 +48,7 @@ endfunction() # add_compile_options_if_available
 # Put any cache options here
 
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR $<CONFIG:Debug>)
 	# Enable most compiler warnings if a debug build
 	if (MSVC)
 		add_compile_options("/W4" "/WX")
@@ -72,6 +72,23 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_library(MATH_FOUND m)
+
+if (CMAKE_TOOLCHAIN_FILE MATCHES ".*vcpkg.cmake$")
+  set(VCPKG_FOUND TRUE)
+else()
+  set(VCPKG_FOUND FALSE)
+endif()
+find_package(PkgConfig)
+
+if (VCPKG_FOUND)
+find_package(SFML CONFIG COMPONENTS graphics window system REQUIRED)
+elseif (PKG_CONFIG_FOUND)
+pkg_check_modules(SFML REQUIRED IMPORTED_TARGET sfml-graphics sfml-window sfml-system)
+else()
+error("How am I expected to find SFML")
+endif()
+
+find_path(SFML_INCLUDE_DIR "SFML/Window.hpp")
 
 #[[ Don't have cmakeconfig.h
 if ($<VERSION_GREATER_EQUAL:"${CMAKE_VERSION}","3.12">)

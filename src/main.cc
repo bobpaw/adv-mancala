@@ -1,6 +1,53 @@
-#include "main.h"
+#include <filesystem>
+#include <iostream>
+#include <stdexcept>
+#include <string>
 
-int main() {
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/Window.hpp>
+
+#include "mancala.h"
+
+namespace fs = std::filesystem;
+
+int main(int argc, char* argv[]) {
+	sf::RenderWindow graphics_window(sf::VideoMode(640, 400), "Adv Mancala",
+																	 sf::Style::Default,
+																	 sf::ContextSettings(0, 0, 0));
+	graphics_window.setVerticalSyncEnabled(true);
+
+	sf::Font freesans;
+	if (!freesans.loadFromFile(
+					(fs::path(argv[0]).parent_path() / "FreeSans.ttf").string())) {
+		std::cerr << "Failed to load font FreeSans.ttf." << std::endl;
+		return -1;
+	}
+
+	sf::Event event;
+
+	sf::Text rule_choice("Capture or Avalanche?", freesans);
+
+	auto bounds = rule_choice.getLocalBounds();
+	rule_choice.setOrigin(bounds.left + bounds.width / 2,
+												bounds.top + bounds.height / 2);
+	rule_choice.setPosition(sf::Vector2f(graphics_window.getSize()) / 2.f);
+
+	while (graphics_window.isOpen()) {
+		while (graphics_window.pollEvent(event)) {
+			switch (event.type) {
+			case sf::Event::Closed: graphics_window.close(); break;
+			case sf::Event::MouseButtonReleased:
+				// Process
+				break;
+			default:
+				// Do nothing
+			}
+		}
+
+		// Yada yada nobody cares
+	}
+
 	// let the player pick the ruleset
 	int ruleset = -1;
 	while (!std::cin.fail() && !(ruleset == 0 || ruleset == 1)) {
