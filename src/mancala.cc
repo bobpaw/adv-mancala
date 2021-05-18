@@ -24,19 +24,19 @@ namespace mancala {
 // their_mancala().
 int Board::move_pieces(int n) {
 	assert(-1 < n);
-	assert(n < pockets.size());
+	assert(n < static_cast<int>(pockets.size()));
 
 	int hand = pockets[n];
 	pockets[n] = 0;
 	while (hand > 0) {
-		n = (n + 1) % pockets.size();
+		n = modulus(n + 1, pockets.size());
 		if (n == their_mancala()) continue;
 		--hand;
 		++pockets[n];
 	}
 
 	assert(-1 < n);
-	assert(n < pockets.size());
+	assert(n < static_cast<int>(pockets.size()));
 	assert(n != their_mancala());
 	return n;
 }
