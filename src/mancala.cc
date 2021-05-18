@@ -9,26 +9,35 @@
 
 namespace {
 // Static functions, etc.
-	int modulus(int a, int b) {
-		int mod = a % b;
-		if (mod < 0) return mod + b;
-		return mod;
-	}
+static int modulus(int a, int b) {
+	int mod = a % b;
+	if (mod < 0) return mod + b;
+	return mod;
+}
 }  // namespace
 
 namespace mancala {
 // Function definitions, etc.
 
+// Precondition: n is in the range [0, pockets.size()).
+// Postcondition: n is in the range [0, pockets.size()) and n is not
+// their_mancala().
 int Board::move_pieces(int n) {
+	assert(-1 < n);
+	assert(n < pockets.size());
+
 	int hand = pockets[n];
 	pockets[n] = 0;
 	while (hand > 0) {
 		n = (n + 1) % pockets.size();
-		if (n == player * 7) continue;
+		if (n == their_mancala()) continue;
 		--hand;
 		++pockets[n];
 	}
 
+	assert(-1 < n);
+	assert(n < pockets.size());
+	assert(n != their_mancala());
 	return n;
 }
 
@@ -43,25 +52,23 @@ int Board::move(int n) {
 		n = move_pieces(n);
 
 		// If n is the player's mancala, don't swap the active player.
-		if (n == (player ^ 1) * 7) break;
+		if (n == my_mancala()) break;
 
-		// If on player's side and an empty mancala, perform capture.
-		if (((player == 0 && n < 7) || (player == 1 && n > 7)) && pockets[n] == 1) {
-			pockets[(player ^ 1) * 7] += pockets[pockets.size() - n];
+		// If on player's side and an empty pocket, perform capture.
+		if (on_my_side(n) && pockets[n] == 1) {
+			pockets[my_mancala()] += pockets[pockets.size() - n];
 			pockets[pockets.size() - n] = 0;
 		}
 
-		// Swap active player
-		player ^= 1;
+		swap_player();
 
 		break;
 	case Ruleset::Avalanche:
-		
-		while (n != (player ^ 1) * 7 && pockets[n] != 1)
-			n = move_pieces(n);
+
+		while (n != my_mancala() && pockets[n] != 1) n = move_pieces(n);
 
 		// If last piece didn't land in active player's mancala swap active player.
-		if (n != (player ^ 1) * 7) player ^= 1;
+		if (n != my_mancala()) swap_player();
 		break;
 	}
 	return 0;
@@ -111,9 +118,9 @@ void Board::load() {
 	while (std::getline(fin, line) && i < pockets.size()) {
 		try {
 			pockets[i] = std::stoi(line);
-		} catch (const std::invalid_argument&) { break; } catch (const std::out_of_range&) {
+		} catch (const std::invalid_argument&) {
 			break;
-		}
+		} catch (const std::out_of_range&) { break; }
 		++i;
 	}
 	if (i != 14)
