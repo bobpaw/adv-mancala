@@ -82,10 +82,10 @@ void Board::load() {
 
 	try {
 		player = std::stoi(line);
-	} catch (std::invalid_argument) {
+	} catch (const std::invalid_argument&) {
 		std::cerr << "Invalid player value." << std::endl;
 		return;  // Possibly recover
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		std::cerr << "Invalid player value." << std::endl;
 		return;  // Possibly recover
 	}
@@ -93,10 +93,10 @@ void Board::load() {
 	std::getline(fin, line);
 	try {
 		rules = Ruleset(std::stoi(line));
-	} catch (std::invalid_argument) {
+	} catch (const std::invalid_argument&) {
 		std::cerr << "Invalid ruleset value." << std::endl;
 		return;  // Possibly recover here.
-	} catch (std::out_of_range) {
+	} catch (const std::out_of_range&) {
 		std::cerr << "Invalid ruleset value." << std::endl;
 		return;  // Possibly recover here.
 	}
@@ -105,7 +105,7 @@ void Board::load() {
 	while (std::getline(fin, line) && i < pockets.size()) {
 		try {
 			pockets[i] = std::stoi(line);
-		} catch (std::invalid_argument) { break; } catch (std::out_of_range) {
+		} catch (const std::invalid_argument&) { break; } catch (const std::out_of_range&) {
 			break;
 		}
 		++i;

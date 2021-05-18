@@ -36,10 +36,10 @@ int main() {
 		if (line[0] == 'p') {
 			try {
 				moveNum = std::stoi(line.substr(1));
-			} catch (std::invalid_argument) {
+			} catch (const std::invalid_argument&) {
 				std::cerr << "Invalid argument." << std::endl;
 				moveNum = -1u;
-			} catch (std::out_of_range) {
+			} catch (const std::out_of_range&) {
 				std::cerr << "Input out of range." << std::endl;
 				moveNum = -1u;
 			}
@@ -52,10 +52,10 @@ int main() {
 		} else {
 			try {
 				moveNum = std::stoi(line);
-			} catch (std::invalid_argument) {
+			} catch (const std::invalid_argument&) {
 				std::cerr << "Invalid argument." << std::endl;
 				moveNum = -1u;
-			} catch (std::out_of_range) {
+			} catch (const std::out_of_range&) {
 				std::cerr << "Input out of range." << std::endl;
 				moveNum = -1u;
 			}
