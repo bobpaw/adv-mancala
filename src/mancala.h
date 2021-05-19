@@ -27,6 +27,17 @@ class Board {
 		return n > their_mancala() && n < static_cast<int>(size());
 	}
 
+	struct pocket{
+		int marbles;
+		struct pocket* next;
+	};
+
+	pocket* head = nullptr;
+	void initializeList();
+	void addPocket(int m, bool last);
+	void printList();
+
+
 public:
 	enum class Ruleset : int {
 		Capture = 0,
