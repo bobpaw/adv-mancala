@@ -1,4 +1,13 @@
+#ifdef HAVE_CMAKE_CONFIG_H
+#include "cmakeconfig.h.in""
+#endif
+
+#if defined(HAVE_FILESYSTEM)
 #include <filesystem>
+#elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
+#include <experimental/filesystem>
+#endif
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -79,7 +88,11 @@ private:
 	sf::Vector2i size;
 };
 
+#if defined(HAVE_FILESYSTEM)
 namespace fs = std::filesystem;
+#elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
+namespace fs = std::experimental::filesystem;
+#endif
 
 int main(int argc, char* argv[]) {
 	sf::RenderWindow graphics_window(sf::VideoMode(64 * 4, 56 * 8), "Adv Mancala",

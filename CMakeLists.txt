@@ -82,6 +82,15 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_library(MATH_FOUND m)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+set(CMAKE_REQUIRED_LIBRARIES "stdc++fs")
+endif()
+check_include_file_cxx("<filesystem>" HAVE_FILESYSTEM)
+check_include_file_cxx("<experimental/filesystem>" HAVE_EXPERIMENTAL_FILESYSTEM)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+unset(CMAKE_REQUIRED_LIBRARIES)
+endif()
+
 if (CMAKE_TOOLCHAIN_FILE MATCHES ".*vcpkg.cmake$")
   set(VCPKG_FOUND TRUE)
 else()
@@ -99,7 +108,6 @@ endif()
 
 find_path(SFML_INCLUDE_DIR "SFML/Window.hpp")
 
-#[[ Don't have cmakeconfig.h
 if ($<VERSION_GREATER_EQUAL:"${CMAKE_VERSION}","3.12">)
 	add_compile_definitions(HAVE_CMAKE_CONFIG_H)
 else()
@@ -107,7 +115,6 @@ else()
 endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/cmakeconfig.h.in" "${PROJECT_BINARY_DIR}/cmakeconfig.h" ESCAPE_QUOTES @ONLY)
-#]]
 
 # Assumes your directory tree is as follows
 # CMakeLists.txt
