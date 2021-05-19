@@ -21,7 +21,7 @@
 class TileMap: public sf::Drawable, public sf::Transformable {
 public:
 	explicit TileMap(const sf::Texture& texture, sf::Vector2u tilesize):
-			m_tileset(&texture), m_vertices(sf::Quads), tileSize(tilesize) {
+			m_vertices(sf::Quads), m_tileset(&texture), tileSize(tilesize), size(0, 0) {
 		m_tileset = &texture;
 	}
 	bool load(const int* tiles, unsigned int width, unsigned int height) {
@@ -55,19 +55,19 @@ public:
 		}
 
 		// Set position if not set.
-		quad[0].position = sf::Vector2f(x * tileSize.x, y * tileSize.y);
-		quad[1].position = sf::Vector2f((x + 1) * tileSize.x, y * tileSize.y);
-		quad[2].position = sf::Vector2f((x + 1) * tileSize.x, (y + 1) * tileSize.y);
-		quad[3].position = sf::Vector2f(x * tileSize.x, (y + 1) * tileSize.y);
+		quad[0].position = sf::Vector2f(sf::Vector2u(x * tileSize.x, y * tileSize.y));
+		quad[1].position = sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, y * tileSize.y));
+		quad[2].position = sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, (y + 1) * tileSize.y));
+		quad[3].position = sf::Vector2f(sf::Vector2u(x * tileSize.x, (y + 1) * tileSize.y));
 
-		int tu = tileNumber % (m_tileset->getSize().x / tileSize.x);
-		int tv = tileNumber / (m_tileset->getSize().x / tileSize.x);
+		unsigned int tu = tileNumber % (m_tileset->getSize().x / tileSize.x);
+		unsigned int tv = tileNumber / (m_tileset->getSize().x / tileSize.x);
 
-		quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
-		quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
+		quad[0].texCoords = sf::Vector2f(sf::Vector2u(tu * tileSize.x, tv * tileSize.y));
+		quad[1].texCoords = sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, tv * tileSize.y));
 		quad[2].texCoords =
-				sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
-		quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
+				sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, (tv + 1) * tileSize.y));
+		quad[3].texCoords = sf::Vector2f(sf::Vector2u(tu * tileSize.x, (tv + 1) * tileSize.y));
 	}
 
 private:
@@ -182,11 +182,11 @@ int main(int argc, char* argv[]) {
 						std::cout << "Clicked pocket " << i << ": " << fun_board[i]
 											<< std::endl;
 						if (fun_board[i] >= 5)
-							ui.set_tile(pocket_dimensions[i].left / 64,
-													pocket_dimensions[i].top / 56, 15);
+							ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+													unsigned(pocket_dimensions[i].top) / 56, 15);
 						else
-							ui.set_tile(pocket_dimensions[i].left / 64,
-													pocket_dimensions[i].top / 56, 10 + fun_board[i]);
+							ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+													unsigned(pocket_dimensions[i].top) / 56, 10 + fun_board[i]);
 					}
 				break;
 			default:
