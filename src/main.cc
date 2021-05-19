@@ -9,10 +9,80 @@
 
 #include "mancala.h"
 
+class TileMap: public sf::Drawable, public sf::Transformable {
+public:
+	explicit TileMap(const sf::Texture& texture, sf::Vector2u tilesize):
+			m_tileset(&texture), m_vertices(sf::Quads), tileSize(tilesize) {
+		m_tileset = &texture;
+	}
+	bool load(const int* tiles, unsigned int width, unsigned int height) {
+		if (!m_tileset) return false;
+
+		// resize the vertex array to fit the level size
+		m_vertices.resize(width * height * 4);
+
+		size.x = width;
+		size.y = height;
+
+		// populate the vertex array, with one quad per tile
+		for (unsigned int i = 0; i < width; ++i)
+			for (unsigned int j = 0; j < height; ++j) {
+				// get the current tile number
+				int tileNumber = tiles[i + j * width];
+				if (tileNumber < 0) continue;
+
+				set_tile(i, j, tileNumber);
+			}
+
+		return true;
+	}
+
+	void set_tile(unsigned int x, unsigned int y, int tileNumber) {
+		sf::Vertex* quad = &m_vertices[(x + y * size.x) * 4];
+
+		if (tileNumber == -1) {
+			quad[0] = quad[1] = quad[2] = quad[3] = sf::Vertex();
+			return;
+		}
+
+		// Set position if not set.
+		quad[0].position = sf::Vector2f(x * tileSize.x, y * tileSize.y);
+		quad[1].position = sf::Vector2f((x + 1) * tileSize.x, y * tileSize.y);
+		quad[2].position = sf::Vector2f((x + 1) * tileSize.x, (y + 1) * tileSize.y);
+		quad[3].position = sf::Vector2f(x * tileSize.x, (y + 1) * tileSize.y);
+
+		int tu = tileNumber % (m_tileset->getSize().x / tileSize.x);
+		int tv = tileNumber / (m_tileset->getSize().x / tileSize.x);
+
+		quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
+		quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
+		quad[2].texCoords =
+				sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
+		quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
+	}
+
+private:
+	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
+		// apply the transform
+		states.transform *= getTransform();
+
+		// apply the tileset texture
+		states.texture = m_tileset;
+
+		// draw the vertex array
+		target.draw(m_vertices, states);
+	}
+
+	sf::VertexArray m_vertices;
+	const sf::Texture* m_tileset;
+	sf::Vector2u tileSize;
+	sf::Vector2i size;
+};
+
 namespace fs = std::filesystem;
 
 int main(int argc, char* argv[]) {
-	sf::RenderWindow graphics_window(sf::VideoMode(640, 400), "Adv Mancala",
+	sf::RenderWindow graphics_window(sf::VideoMode(64 * 4, 56 * 8), "Adv Mancala",
 																	 sf::Style::Default,
 																	 sf::ContextSettings(0, 0, 0));
 	graphics_window.setVerticalSyncEnabled(true);
@@ -24,6 +94,44 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
+	sf::Texture spritemap;
+	if (!spritemap.loadFromFile(
+					(fs::path(argv[0]).parent_path() / "spritemap.png").string())) {
+		std::cerr << "Failed to load spritemap.png." << std::endl;
+		return -1;
+	}
+
+	// clang-format off
+	int mancala_board[] = {
+		4, 5, 5, 7,
+		1, 0, 0, 1,
+		1, 0, 0, 1,
+		1, 0, 0, 1,
+		1, 0, 0, 1,
+		1, 0, 0, 1,
+		1, 0, 0, 1,
+		4, 5, 5, 7
+	};
+	// clang-format on
+	TileMap map(spritemap, sf::Vector2u(64, 56));
+	map.load(mancala_board, 4, 8);
+
+	// clang-format off
+	int ui_elements[] = {
+		-1, -1, -1, -1,
+		-1, -1, -1, -1,
+		-1, -1, -1, -1,
+		-1,  2,  3, -1,
+		-1,  8,  9, -1,
+		-1, 10, -1, -1,
+		-1, -1, -1, -1,
+		-1, -1, -1, -1
+	};
+	// clang-format on
+	TileMap ui(spritemap, sf::Vector2u(64, 56));
+	ui.load(ui_elements, 4, 8);
+
+
 	sf::Event event;
 
 	sf::Text rule_choice("Capture or Avalanche?", freesans);
@@ -33,19 +141,52 @@ int main(int argc, char* argv[]) {
 												bounds.top + bounds.height / 2);
 	rule_choice.setPosition(sf::Vector2f(graphics_window.getSize()) / 2.f);
 
+	const sf::FloatRect pocket_dimensions[] = {
+			{0, 0, 64 * 4, 56},       {0, 56 * 1, 64, 56},
+			{0, 56 * 2, 64, 56},      {0, 56 * 3, 64, 56},
+			{0, 56 * 4, 64, 56},      {0, 56 * 5, 64, 56},
+			{0, 56 * 6, 64, 56},      {0, 56 * 7, 64 * 4, 56},
+			{64 * 3, 56 * 6, 64, 56}, {64 * 3, 56 * 5, 64, 56},
+			{64 * 3, 56 * 4, 64, 56}, {64 * 3, 56 * 3, 64, 56},
+			{64 * 3, 56 * 2, 64, 56}, {64 * 3, 56 * 1, 64, 56},
+	};
+
+	mancala::Board fun_board;
+
+	sf::Vector2f mouse_pos;
+
 	while (graphics_window.isOpen()) {
 		while (graphics_window.pollEvent(event)) {
 			switch (event.type) {
 			case sf::Event::Closed: graphics_window.close(); break;
 			case sf::Event::MouseButtonReleased:
+				mouse_pos = graphics_window.mapPixelToCoords(
+						sf::Mouse::getPosition(graphics_window));
 				// Process
+				for (size_t i = 0; i < 14; ++i)
+					if (pocket_dimensions[i].contains(mouse_pos)) {
+						++fun_board[i];
+						std::cout << "Clicked pocket " << i << ": " << fun_board[i]
+											<< std::endl;
+						if (fun_board[i] >= 5)
+							ui.set_tile(pocket_dimensions[i].left / 64,
+													pocket_dimensions[i].top / 56, 15);
+						else
+							ui.set_tile(pocket_dimensions[i].left / 64,
+													pocket_dimensions[i].top / 56, 10 + fun_board[i]);
+					}
 				break;
 			default:
 				// Do nothing
+				break;
 			}
 		}
 
 		// Yada yada nobody cares
+		graphics_window.clear();
+		graphics_window.draw(map);
+		graphics_window.draw(ui);
+		graphics_window.display();
 	}
 
 	// let the player pick the ruleset
