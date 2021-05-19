@@ -12,6 +12,7 @@ project(adv-mancala VERSION 0.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 cmake_policy(SET CMP0067 NEW) # Force CMake to observe CXX_STANDARD in checks
+cmake_policy(SET CMP0075 NEW) # Force CMake to honor CMAKE_REQUIRED_LIBRARIES
 
 ##
 ## HAVE is for symbols and headers
@@ -83,12 +84,17 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 find_library(MATH_FOUND m)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.12")
 set(CMAKE_REQUIRED_LIBRARIES "stdc++fs")
+else()
+set(CMAKE_REQUIRED_FLAGS "-lstdc++fs")
+endif()
 endif()
 check_include_file_cxx("<filesystem>" HAVE_FILESYSTEM)
 check_include_file_cxx("<experimental/filesystem>" HAVE_EXPERIMENTAL_FILESYSTEM)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 unset(CMAKE_REQUIRED_LIBRARIES)
+unset(CMAKE_REQUIRED_FLAGS)
 endif()
 
 if (CMAKE_TOOLCHAIN_FILE MATCHES ".*vcpkg.cmake$")

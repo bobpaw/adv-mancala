@@ -1,5 +1,5 @@
 #ifdef HAVE_CMAKE_CONFIG_H
-#include "cmakeconfig.h.in""
+#include "cmakeconfig.h"
 #endif
 
 #if defined(HAVE_FILESYSTEM)
