@@ -1,0 +1,6 @@
+C:/Users/Jasre/Desktop/adv-mancala/src/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/Jasre/Desktop/adv-mancala/src/out/build/x64-Debug/CMakeFiles/adv-mancala.dir
+C:/Users/Jasre/Desktop/adv-mancala/src/out/build/x64-Debug/CMakeFiles/mancala.dir
+C:/Users/Jasre/Desktop/adv-mancala/src/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/Jasre/Desktop/adv-mancala/src/out/build/x64-Debug/CMakeFiles/test_mancala.dir
+C:/Users/Jasre/Desktop/adv-mancala/src/out/build/x64-Debug/CMakeFiles/test_saving.dir
