@@ -21,9 +21,11 @@ addons:
   apt:
     packages:
     - cmake # Actually already installed by default
+    - libsfml-dev
   homebrew:
     packages:
     - cmake # Actually already installed by default
+    - sfml
     - ccache
 
 # Build Matrix
@@ -31,9 +33,13 @@ jobs:
   fast_finish: true
   include:
   - os: windows
-    env: CMAKE_GENERATOR="Visual Studio 15 2017"
-  - os: windows
-    env: CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
+    env:
+    - CMAKE_GENERATOR="Visual Studio 15 2017" VCPKG_DEFAULT_TRIPLET=x86-windows
+    - CMAKE_GENERATOR="Visual Studio 15 2017 Win64" VCPKG_DEFAULT_TRIPLET=x64-windows
+    before_install:
+    - powershell ./.travis/before_install.ps1
+    install:
+    - powershell "C:\dev\vcpkg\vcpkg install sfml"
   - stage: Coverage
     os: linux
     compiler: g++
@@ -48,8 +54,6 @@ jobs:
     - cd ..
     after_success:
     - coveralls -e "doc/" -E ".*test.*" -E ".*CMakeFiles.*"
-
-
 
 before_script:
   - cmake --version
