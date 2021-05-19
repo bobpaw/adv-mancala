@@ -33,13 +33,9 @@ jobs:
   fast_finish: true
   include:
   - os: windows
-    env:
-    - CMAKE_GENERATOR="Visual Studio 15 2017" VCPKG_DEFAULT_TRIPLET=x86-windows
-    - CMAKE_GENERATOR="Visual Studio 15 2017 Win64" VCPKG_DEFAULT_TRIPLET=x64-windows
-    before_install:
-    - powershell ./.travis/before_install.ps1
-    install:
-    - powershell "C:\dev\vcpkg\vcpkg install sfml"
+    env: CMAKE_GENERATOR="Visual Studio 15 2017" VCPKG_DEFAULT_TRIPLET=x86-windows
+  - os: windows
+    env: CMAKE_GENERATOR="Visual Studio 15 2017 Win64" VCPKG_DEFAULT_TRIPLET=x64-windows
   - stage: Coverage
     os: linux
     compiler: g++
@@ -55,6 +51,18 @@ jobs:
     after_success:
     - coveralls -e "doc/" -E ".*test.*" -E ".*CMakeFiles.*"
 
+before_install:
+- |-
+  if test $TRAVIS_OS_NAME = "windows"; then
+    git clone https://github.com/microsoft/vcpkg ~/vcpkg;
+    cmd ~/vcpkg/bootstrap-vcpkg.bat
+  fi
+install:
+- |-
+  if test $TRAVIS_OS_NAME = "windows"; then
+    ~/vcpkg/vcpkg install sfml
+  fi
+
 before_script:
   - cmake --version
   - mkdir build && cd build
@@ -62,5 +70,5 @@ before_script:
 # Actually check if it works
 script:
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
-  - cmake --build .
+  - VERBOSE=1 cmake --build .
   - ctest -j2 -V -C Debug
