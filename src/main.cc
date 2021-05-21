@@ -92,6 +92,8 @@ private:
 namespace fs = std::filesystem;
 #elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
 namespace fs = std::experimental::filesystem;
+#else
+#error No filesystem header found.	
 #endif
 
 int main(int argc, char* argv[]) {
