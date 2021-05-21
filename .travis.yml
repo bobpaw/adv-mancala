@@ -34,8 +34,16 @@ jobs:
   include:
   - os: windows
     env: CMAKE_GENERATOR="Visual Studio 15 2017" VCPKG_DEFAULT_TRIPLET=x86-windows
+    cache:
+    - ccache
+    - directories:
+      - $LOCALAPPDATA/vcpkg/archives
   - os: windows
     env: CMAKE_GENERATOR="Visual Studio 15 2017 Win64" VCPKG_DEFAULT_TRIPLET=x64-windows
+    cache:
+    - ccache
+    - directories:
+      - $LOCALAPPDATA/vcpkg/archives
   - stage: Coverage
     os: linux
     compiler:
@@ -56,9 +64,9 @@ jobs:
 before_install:
 - |-
   if test $TRAVIS_OS_NAME = "windows"; then
+    export VCPKG_ROOT="~/vcpkg" VCPKG_
     git clone https://github.com/microsoft/vcpkg ~/vcpkg
     powershell ~/vcpkg/bootstrap-vcpkg.bat
-    export VCPKG_ROOT="~/vcpkg"
   fi
 install:
 - |-
