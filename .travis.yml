@@ -72,7 +72,7 @@ install:
 - |-
   case $TRAVIS_OS_NAME in
     windows) $VCPKG_ROOT/vcpkg install sfml ;;
-    osx) brew install cmake sfml ccache ;;
+    osx) HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml ccache ;;
   esac
 
 before_script:
