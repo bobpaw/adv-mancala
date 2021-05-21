@@ -1,4 +1,15 @@
+#ifdef HAVE_CMAKE_CONFIG_H
+#include "cmakeconfig.h"
+#endif
+
+#if defined(HAVE_FILESYSTEM)
 #include <filesystem>
+#elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
+#include <experimental/filesystem>
+#else
+#include <boost/filesystem.hpp>
+#endif
+
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -12,7 +23,7 @@
 class TileMap: public sf::Drawable, public sf::Transformable {
 public:
 	explicit TileMap(const sf::Texture& texture, sf::Vector2u tilesize):
-			m_tileset(&texture), m_vertices(sf::Quads), tileSize(tilesize) {
+			m_vertices(sf::Quads), m_tileset(&texture), tileSize(tilesize), size(0, 0) {
 		m_tileset = &texture;
 	}
 	bool load(const int* tiles, unsigned int width, unsigned int height) {
@@ -46,19 +57,19 @@ public:
 		}
 
 		// Set position if not set.
-		quad[0].position = sf::Vector2f(x * tileSize.x, y * tileSize.y);
-		quad[1].position = sf::Vector2f((x + 1) * tileSize.x, y * tileSize.y);
-		quad[2].position = sf::Vector2f((x + 1) * tileSize.x, (y + 1) * tileSize.y);
-		quad[3].position = sf::Vector2f(x * tileSize.x, (y + 1) * tileSize.y);
+		quad[0].position = sf::Vector2f(sf::Vector2u(x * tileSize.x, y * tileSize.y));
+		quad[1].position = sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, y * tileSize.y));
+		quad[2].position = sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, (y + 1) * tileSize.y));
+		quad[3].position = sf::Vector2f(sf::Vector2u(x * tileSize.x, (y + 1) * tileSize.y));
 
-		int tu = tileNumber % (m_tileset->getSize().x / tileSize.x);
-		int tv = tileNumber / (m_tileset->getSize().x / tileSize.x);
+		unsigned int tu = tileNumber % (m_tileset->getSize().x / tileSize.x);
+		unsigned int tv = tileNumber / (m_tileset->getSize().x / tileSize.x);
 
-		quad[0].texCoords = sf::Vector2f(tu * tileSize.x, tv * tileSize.y);
-		quad[1].texCoords = sf::Vector2f((tu + 1) * tileSize.x, tv * tileSize.y);
+		quad[0].texCoords = sf::Vector2f(sf::Vector2u(tu * tileSize.x, tv * tileSize.y));
+		quad[1].texCoords = sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, tv * tileSize.y));
 		quad[2].texCoords =
-				sf::Vector2f((tu + 1) * tileSize.x, (tv + 1) * tileSize.y);
-		quad[3].texCoords = sf::Vector2f(tu * tileSize.x, (tv + 1) * tileSize.y);
+				sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, (tv + 1) * tileSize.y));
+		quad[3].texCoords = sf::Vector2f(sf::Vector2u(tu * tileSize.x, (tv + 1) * tileSize.y));
 	}
 
 private:
@@ -79,24 +90,42 @@ private:
 	sf::Vector2i size;
 };
 
+#if defined(HAVE_FILESYSTEM)
 namespace fs = std::filesystem;
+#elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
+namespace fs = std::experimental::filesystem;
+#else
+namespace fs = boost::filesystem;
+#endif
 
 int main(int argc, char* argv[]) {
+	std::string resource_stem;
+
+	if (argc > 0) {
+#if defined(HAVE_FILESYSTEM) || defined(HAVE_EXPERIMENTAL_FILESYSTEM)
+		resource_stem = (fs::path(argv[0]).parent_path() / "").string();
+#else
+		resource_stem =
+				(fs::path(argv[0]).parent_path() / "").native();
+#endif
+	} else {
+		// Die I guess?
+		return -1;
+	}
+
 	sf::RenderWindow graphics_window(sf::VideoMode(64 * 4, 56 * 8), "Adv Mancala",
 																	 sf::Style::Default,
 																	 sf::ContextSettings(0, 0, 0));
 	graphics_window.setVerticalSyncEnabled(true);
 
 	sf::Font freesans;
-	if (!freesans.loadFromFile(
-					(fs::path(argv[0]).parent_path() / "FreeSans.ttf").string())) {
+	if (!freesans.loadFromFile(resource_stem + "FreeSans.ttf")) {
 		std::cerr << "Failed to load font FreeSans.ttf." << std::endl;
 		return -1;
 	}
 
 	sf::Texture spritemap;
-	if (!spritemap.loadFromFile(
-					(fs::path(argv[0]).parent_path() / "spritemap.png").string())) {
+	if (!spritemap.loadFromFile(resource_stem + "spritemap.png")) {
 		std::cerr << "Failed to load spritemap.png." << std::endl;
 		return -1;
 	}
@@ -169,11 +198,11 @@ int main(int argc, char* argv[]) {
 						std::cout << "Clicked pocket " << i << ": " << fun_board[i]
 											<< std::endl;
 						if (fun_board[i] >= 5)
-							ui.set_tile(pocket_dimensions[i].left / 64,
-													pocket_dimensions[i].top / 56, 15);
+							ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+													unsigned(pocket_dimensions[i].top) / 56, 15);
 						else
-							ui.set_tile(pocket_dimensions[i].left / 64,
-													pocket_dimensions[i].top / 56, 10 + fun_board[i]);
+							ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+													unsigned(pocket_dimensions[i].top) / 56, 10 + fun_board[i]);
 					}
 				break;
 			default:
