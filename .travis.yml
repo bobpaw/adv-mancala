@@ -70,9 +70,10 @@ before_install:
   fi
 install:
 - |-
-  if test $TRAVIS_OS_NAME = "windows"; then
-    ~/vcpkg/vcpkg install sfml
-  fi
+  case $TRAVIS_OS_NAME in
+    windows) ~/vcpkg/vcpkg install sfml ;;
+    osx) brew install cmake sfml ccache ;;
+  esac
 
 before_script:
   - cmake --version
