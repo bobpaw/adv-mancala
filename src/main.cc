@@ -6,6 +6,8 @@
 #include <filesystem>
 #elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
 #include <experimental/filesystem>
+#else
+#include <boost/filesystem.hpp>
 #endif
 
 #include <iostream>
@@ -93,25 +95,37 @@ namespace fs = std::filesystem;
 #elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
 namespace fs = std::experimental::filesystem;
 #else
-#error No filesystem header found.	
+namespace fs = boost::filesystem;
 #endif
 
 int main(int argc, char* argv[]) {
+	std::string resource_stem;
+
+	if (argc > 0) {
+#if defined(HAVE_FILESYSTEM) || defined(HAVE_EXPERIMENTAL_FILESYSTEM)
+		resource_stem = (fs::path(argv[0]).parent_path() / "").string();
+#else
+		resource_stem =
+				(fs::path(argv[0]).parent_path() / "").native();
+#endif
+	} else {
+		// Die I guess?
+		return -1;
+	}
+
 	sf::RenderWindow graphics_window(sf::VideoMode(64 * 4, 56 * 8), "Adv Mancala",
 																	 sf::Style::Default,
 																	 sf::ContextSettings(0, 0, 0));
 	graphics_window.setVerticalSyncEnabled(true);
 
 	sf::Font freesans;
-	if (!freesans.loadFromFile(
-					(fs::path(argv[0]).parent_path() / "FreeSans.ttf").string())) {
+	if (!freesans.loadFromFile(resource_stem + "FreeSans.ttf")) {
 		std::cerr << "Failed to load font FreeSans.ttf." << std::endl;
 		return -1;
 	}
 
 	sf::Texture spritemap;
-	if (!spritemap.loadFromFile(
-					(fs::path(argv[0]).parent_path() / "spritemap.png").string())) {
+	if (!spritemap.loadFromFile(resource_stem + "spritemap.png")) {
 		std::cerr << "Failed to load spritemap.png." << std::endl;
 		return -1;
 	}

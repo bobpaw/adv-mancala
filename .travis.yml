@@ -26,6 +26,7 @@ addons:
     packages:
     - cmake # Actually already installed by default
     - sfml
+    - boost # Necessary until we have AppleClang 11
     - ccache
 
 # Build Matrix
@@ -72,7 +73,7 @@ install:
 - |-
   case $TRAVIS_OS_NAME in
     windows) $VCPKG_ROOT/vcpkg install sfml ;;
-    osx) HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml ccache ;;
+    osx) HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml boost ccache ;;
   esac
 
 before_script:
