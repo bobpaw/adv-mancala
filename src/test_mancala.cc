@@ -107,7 +107,7 @@ int main() {
 	ava_b.move(1);
 	assert(ava_b.player == 0);
 
-	// Test capture extra turn
+	// Test capture mode extra turn
 	b.player = 0;
 	b[6] = 1;
 	b.move(6);
@@ -122,7 +122,9 @@ int main() {
 	// 00 000110 00 020000
 	// 00 000100 02 000000
 	b5.move(3);
-	assert(b5[7] == 2);
+	assert(b5[7] == 3);
+	assert(b5[6] == 0);
+	assert(b5[8] == 0);
 
 	// Test initialization
 	mancala::Board b3;
