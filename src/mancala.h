@@ -20,6 +20,13 @@ class Board {
 
 	int move_pieces(int n);
 
+	int my_mancala() const noexcept { return player == 0 ? 7 : 0; }
+	int their_mancala() const noexcept { return player == 0 ? 0 : 7; }
+	bool on_my_side(int n) const noexcept {
+		if (player == 0) return n > their_mancala() && n < my_mancala();
+		return n > their_mancala() && n < static_cast<int>(size());
+	}
+
 public:
 	enum class Ruleset : int {
 		Capture = 0,
@@ -61,6 +68,8 @@ public:
 	// Check if pockets are equal
 	bool operator==(Board other) const { return pockets == other.pockets; }
 	friend std::ostream& operator<<(std::ostream& out, const Board& board);
+
+	void swap_player() noexcept { player = (player == 0 ? 1 : 0); }
 
 	void save() const;
 	void load();
