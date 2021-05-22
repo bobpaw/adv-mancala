@@ -59,7 +59,7 @@ mancala::Board rot_board(mancala::Board board, int rot = 1) {
 }
 
 int main() {
-	static_assert(mancala::Board().size() == 14);
+	static_assert(mancala::Board().size() == 14, "mancala::Board returns the wrong size or is improperly constexpr.");
 
 	{
 		mancala::Board b;
