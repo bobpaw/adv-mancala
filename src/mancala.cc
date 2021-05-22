@@ -55,9 +55,10 @@ int Board::move(int n) {
 		if (n == my_mancala()) break;
 
 		// If on player's side and an empty pocket, perform capture.
-		if (on_my_side(n) && pockets[n] == 1) {
-			pockets[my_mancala()] += pockets[pockets.size() - n];
+		if (on_my_side(n) && pockets[n] == 1 && pockets[pockets.size() - n] != 0) {
+			pockets[my_mancala()] += pockets[pockets.size() - n] + 1;
 			pockets[pockets.size() - n] = 0;
+			pockets[n] = 0;
 		}
 
 		swap_player();
