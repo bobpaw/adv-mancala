@@ -20,10 +20,18 @@
 
 #include "mancala.h"
 
+namespace {
+
+template<typename T>
+sf::Vector2<T> center(sf::Rect<T> r) {
+	return {r.left + r.width / 2, r.top + r.height / 2};
+}
+
 class TileMap: public sf::Drawable, public sf::Transformable {
 public:
 	explicit TileMap(const sf::Texture& texture, sf::Vector2u tilesize):
-			m_vertices(sf::Quads), m_tileset(&texture), tileSize(tilesize), size(0, 0) {
+			m_vertices(sf::Quads), m_tileset(&texture), tileSize(tilesize),
+			size(0, 0) {
 		m_tileset = &texture;
 	}
 	bool load(const int* tiles, unsigned int width, unsigned int height) {
@@ -57,19 +65,26 @@ public:
 		}
 
 		// Set position if not set.
-		quad[0].position = sf::Vector2f(sf::Vector2u(x * tileSize.x, y * tileSize.y));
-		quad[1].position = sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, y * tileSize.y));
-		quad[2].position = sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, (y + 1) * tileSize.y));
-		quad[3].position = sf::Vector2f(sf::Vector2u(x * tileSize.x, (y + 1) * tileSize.y));
+		quad[0].position =
+				sf::Vector2f(sf::Vector2u(x * tileSize.x, y * tileSize.y));
+		quad[1].position =
+				sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, y * tileSize.y));
+		quad[2].position =
+				sf::Vector2f(sf::Vector2u((x + 1) * tileSize.x, (y + 1) * tileSize.y));
+		quad[3].position =
+				sf::Vector2f(sf::Vector2u(x * tileSize.x, (y + 1) * tileSize.y));
 
 		unsigned int tu = tileNumber % (m_tileset->getSize().x / tileSize.x);
 		unsigned int tv = tileNumber / (m_tileset->getSize().x / tileSize.x);
 
-		quad[0].texCoords = sf::Vector2f(sf::Vector2u(tu * tileSize.x, tv * tileSize.y));
-		quad[1].texCoords = sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, tv * tileSize.y));
-		quad[2].texCoords =
-				sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, (tv + 1) * tileSize.y));
-		quad[3].texCoords = sf::Vector2f(sf::Vector2u(tu * tileSize.x, (tv + 1) * tileSize.y));
+		quad[0].texCoords =
+				sf::Vector2f(sf::Vector2u(tu * tileSize.x, tv * tileSize.y));
+		quad[1].texCoords =
+				sf::Vector2f(sf::Vector2u((tu + 1) * tileSize.x, tv * tileSize.y));
+		quad[2].texCoords = sf::Vector2f(
+				sf::Vector2u((tu + 1) * tileSize.x, (tv + 1) * tileSize.y));
+		quad[3].texCoords =
+				sf::Vector2f(sf::Vector2u(tu * tileSize.x, (tv + 1) * tileSize.y));
 	}
 
 private:
@@ -90,6 +105,8 @@ private:
 	sf::Vector2i size;
 };
 
+}  // namespace
+
 #if defined(HAVE_FILESYSTEM)
 namespace fs = std::filesystem;
 #elif defined(HAVE_EXPERIMENTAL_FILESYSTEM)
@@ -105,8 +122,7 @@ int main(int argc, char* argv[]) {
 #if defined(HAVE_FILESYSTEM) || defined(HAVE_EXPERIMENTAL_FILESYSTEM)
 		resource_stem = (fs::path(argv[0]).parent_path() / "").string();
 #else
-		resource_stem =
-				(fs::path(argv[0]).parent_path() / "").native();
+		resource_stem = (fs::path(argv[0]).parent_path() / "").native();
 #endif
 	} else {
 		// Die I guess?
@@ -165,9 +181,7 @@ int main(int argc, char* argv[]) {
 
 	sf::Text rule_choice("Capture or Avalanche?", freesans);
 
-	auto bounds = rule_choice.getLocalBounds();
-	rule_choice.setOrigin(bounds.left + bounds.width / 2,
-												bounds.top + bounds.height / 2);
+	rule_choice.setOrigin(center(rule_choice.getLocalBounds()));
 	rule_choice.setPosition(sf::Vector2f(graphics_window.getSize()) / 2.f);
 
 	const sf::FloatRect pocket_dimensions[] = {
@@ -180,7 +194,15 @@ int main(int argc, char* argv[]) {
 			{64 * 3, 56 * 2, 64, 56}, {64 * 3, 56 * 1, 64, 56},
 	};
 
+	sf::Text pocket_values("0", freesans);
+	pocket_values.setOrigin(center(pocket_values.getLocalBounds()));
+
 	mancala::Board fun_board;
+
+	for (unsigned i = 1; i < 7; ++i) {
+		fun_board[i] = 6;
+		fun_board[7 + i] = 6;
+	}
 
 	sf::Vector2f mouse_pos;
 
@@ -192,17 +214,10 @@ int main(int argc, char* argv[]) {
 				mouse_pos = graphics_window.mapPixelToCoords(
 						sf::Mouse::getPosition(graphics_window));
 				// Process
-				for (size_t i = 0; i < 14; ++i)
-					if (pocket_dimensions[i].contains(mouse_pos)) {
-						++fun_board[i];
-						std::cout << "Clicked pocket " << i << ": " << fun_board[i]
-											<< std::endl;
-						if (fun_board[i] >= 5)
-							ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
-													unsigned(pocket_dimensions[i].top) / 56, 15);
-						else
-							ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
-													unsigned(pocket_dimensions[i].top) / 56, 10 + fun_board[i]);
+				for (int i = 0; i < 14; ++i)
+					if (pocket_dimensions[i].contains(mouse_pos) &&
+							fun_board.on_my_side(i)) {
+						fun_board.move(i);
 					}
 				break;
 			default:
@@ -211,10 +226,36 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
+		for (int i = 0; i < static_cast<int>(fun_board.size()); ++i) {
+			int tile = 0;
+			if (fun_board[i] >= 5)
+				tile = 15;
+			else if (fun_board[i] == 0)
+				tile = -1;
+			else
+				tile = 10 + fun_board[i];
+
+			ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+									unsigned(pocket_dimensions[i].top) / 56, tile);
+			if (fun_board.on_my_side(i)) {
+				map.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+										 unsigned(pocket_dimensions[i].top) / 56, 16);
+			} else if (i != fun_board.my_mancala() &&
+								 i != fun_board.their_mancala()) {
+				map.set_tile(unsigned(pocket_dimensions[i].left) / 64,
+										 unsigned(pocket_dimensions[i].top) / 56, 1);
+			}
+		}
 		// Yada yada nobody cares
 		graphics_window.clear();
 		graphics_window.draw(map);
 		graphics_window.draw(ui);
+
+		for (int i = 0; i < static_cast<int>(fun_board.size()); ++i) {
+			pocket_values.setString(std::to_string(fun_board[i]));
+			pocket_values.setPosition(center(pocket_dimensions[i]));
+			graphics_window.draw(pocket_values);
+		}
 		graphics_window.display();
 	}
 
