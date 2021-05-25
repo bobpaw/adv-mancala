@@ -1,6 +1,8 @@
 #include <array>
 #include <ostream>
 
+#include "pockets.h"
+
 namespace mancala {
 class Board {
 	/**
@@ -27,16 +29,7 @@ class Board {
 		return n > their_mancala() && n < static_cast<int>(size());
 	}
 
-	struct pocket{
-		int marbles;
-		struct pocket* next;
-	};
-
-	pocket* head = nullptr;
-	void initializeList();
-	void addPocket(int m, bool last);
-	void printList();
-
+	Pockets pockets2;
 
 public:
 	enum class Ruleset : int {
@@ -49,12 +42,12 @@ public:
 	 */
 	int player{0};
 
-	constexpr Board(Ruleset r = Ruleset::Capture): pockets{}, rules(r), player(0) {}
+	Board(Ruleset r = Ruleset::Capture): pockets{}, pockets2(14), rules(r), player(0) {}
 
 	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }
 
-	constexpr decltype(pockets)::size_type size() const noexcept { return pockets.size(); }
+	decltype(pockets)::size_type size() const noexcept { return pockets.size(); }
 
 	/**
 	 * Make a move.
