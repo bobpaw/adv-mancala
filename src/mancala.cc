@@ -23,22 +23,22 @@ namespace mancala {
 // Postcondition: n is in the range [0, pockets.size()) and n is not
 // their_mancala().
 int Board::move_pieces(int n) {
-assert(-1 < n);
-assert(n < static_cast<int>(pockets.size()));
+	assert(-1 < n);
+	assert(n < static_cast<int>(pockets.size()));
 
-int hand = pockets[n];
-pockets[n] = 0;
-while (hand > 0) {
-	n = modulus(n + 1, static_cast<int>(pockets.size()));
-	if (n == their_mancala()) continue;
-	--hand;
-	++pockets[n];
-}
+	int hand = pockets[n];
+	pockets[n] = 0;
+	while (hand > 0) {
+		n = modulus(n + 1, static_cast<int>(pockets.size()));
+		if (n == their_mancala()) continue;
+		--hand;
+		++pockets[n];
+	}
 
-assert(-1 < n);
-assert(n < static_cast<int>(pockets.size()));
-assert(n != their_mancala());
-return n;
+	assert(-1 < n);
+	assert(n < static_cast<int>(pockets.size()));
+	assert(n != their_mancala());
+	return n;
 }
 
 int Board::move(int n) {
