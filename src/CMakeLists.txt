@@ -1,5 +1,8 @@
 add_library(mancala STATIC mancala.cc mancala.h)
 
+add_library(move_queue STATIC move_queue.cc move_queue.h)
+target_link_libraries(move_queue PUBLIC mancala)
+
 add_executable(adv-mancala main.cc main.h mancala)
 target_link_libraries(adv-mancala PUBLIC mancala)
 
