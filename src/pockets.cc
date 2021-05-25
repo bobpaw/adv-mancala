@@ -22,13 +22,31 @@ Pockets::Pockets(const Pockets& old) {
 }
 
 // TODO: Write me
-// Pockets& Pockets::operator=(const Pockets&) {}
+Pockets& Pockets::operator=(const Pockets& old) {
+	for (size_type i = 0; i != size_; ++i) at(i) = old.at(i);
+	if (size_ < old.size_) {
+		for (size_type i = size_; i != old.size_; ++i) append(old[i]);
+	}
 
-// TODO: Write me
-Pockets::Pockets(Pockets&&) noexcept {}
+	return *this;
+}
 
-// TODO: Write me
-// Pockets& Pockets::operator=(Pockets&&) noexcept {}
+Pockets::Pockets(Pockets&& old) noexcept: head(old.head), size_(old.size_) {
+	old.head = nullptr;
+	old.size_ = 0;
+}
+
+Pockets& Pockets::operator=(Pockets&& old) noexcept {
+	clear();
+
+	head = old.head;
+	size_ = old.size_;
+
+	old.head = nullptr;
+	old.size_ = 0;
+
+	return *this;
+}
 
 void Pockets::append(const value_type& value) {
 	if (head) {

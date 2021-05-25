@@ -18,7 +18,7 @@ class Board {
 	 * 06  08
 	 *   07
 	 */
-	std::array<int, 14> pockets;
+	Pockets pockets;
 
 	int move_pieces(int n);
 
@@ -28,8 +28,6 @@ class Board {
 		if (player == 0) return n > their_mancala() && n < my_mancala();
 		return n > their_mancala() && n < static_cast<int>(size());
 	}
-
-	Pockets pockets2;
 
 public:
 	enum class Ruleset : int {
@@ -42,7 +40,7 @@ public:
 	 */
 	int player{0};
 
-	Board(Ruleset r = Ruleset::Capture): pockets{}, pockets2(14), rules(r), player(0) {}
+	Board(Ruleset r = Ruleset::Capture): pockets(14), rules(r), player(0) {}
 
 	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }

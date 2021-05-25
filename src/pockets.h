@@ -21,9 +21,9 @@ public:
 	~Pockets() noexcept;
 
 	Pockets(const Pockets&);
-	Pockets& operator=(const Pockets&) = delete;
+	Pockets& operator=(const Pockets&);
 	Pockets(Pockets&&) noexcept;
-	Pockets& operator=(Pockets&&) noexcept = delete;
+	Pockets& operator=(Pockets&&) noexcept;
 
 	void append(const value_type&);
 	void insert(size_type, const value_type&);
