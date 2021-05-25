@@ -1,8 +1,22 @@
 cmake_minimum_required(VERSION 3.8) # First version with CMP0067
+
+if(DEFINED ENV{VCPKG_DEFAULT_TRIPLET} AND NOT DEFINED VCPKG_TARGET_TRIPLET)
+  set(VCPKG_TARGET_TRIPLET "$ENV{VCPKG_DEFAULT_TRIPLET}" CACHE STRING "")
+endif()
+
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      CACHE STRING "")
+elseif(DEFINED ENV{VCPKG_INSTALLATION_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      CACHE STRING "")
+endif()
+
 project(adv-mancala VERSION 0.0 LANGUAGES C CXX)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 cmake_policy(SET CMP0067 NEW) # Force CMake to observe CXX_STANDARD in checks
+cmake_policy(SET CMP0075 NEW) # Force CMake to honor CMAKE_REQUIRED_LIBRARIES
 
 ##
 ## HAVE is for symbols and headers
@@ -48,7 +62,7 @@ endfunction() # add_compile_options_if_available
 # Put any cache options here
 
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR $<CONFIG:Debug>)
 	# Enable most compiler warnings if a debug build
 	if (MSVC)
 		add_compile_options("/W4" "/WX")
@@ -73,7 +87,43 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 find_library(MATH_FOUND m)
 
-#[[ Don't have cmakeconfig.h
+# Get some filesystem support
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.12")
+set(CMAKE_REQUIRED_LIBRARIES "stdc++fs")
+else()
+set(CMAKE_REQUIRED_FLAGS "-lstdc++fs")
+endif()
+endif()
+check_include_file_cxx("filesystem" HAVE_FILESYSTEM)
+check_include_file_cxx("experimental/filesystem" HAVE_EXPERIMENTAL_FILESYSTEM)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+unset(CMAKE_REQUIRED_LIBRARIES)
+unset(CMAKE_REQUIRED_FLAGS)
+endif()
+
+if (NOT HAVE_FILESYSTEM AND NOT HAVE_EXPERIMENTAL_FILESYSTEM)
+find_package(Boost COMPONENTS filesystem REQUIRED)
+endif()
+
+
+if (CMAKE_TOOLCHAIN_FILE MATCHES ".*vcpkg.cmake$")
+  set(VCPKG_FOUND TRUE)
+else()
+  set(VCPKG_FOUND FALSE)
+endif()
+find_package(PkgConfig)
+
+if (VCPKG_FOUND)
+find_package(SFML CONFIG COMPONENTS graphics window system REQUIRED)
+elseif (PKG_CONFIG_FOUND)
+pkg_check_modules(SFML REQUIRED IMPORTED_TARGET sfml-graphics sfml-window sfml-system)
+else()
+error("How am I expected to find SFML")
+endif()
+
+find_path(SFML_INCLUDE_DIR "SFML/Window.hpp")
+
 if ($<VERSION_GREATER_EQUAL:"${CMAKE_VERSION}","3.12">)
 	add_compile_definitions(HAVE_CMAKE_CONFIG_H)
 else()
@@ -81,7 +131,6 @@ else()
 endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/cmakeconfig.h.in" "${PROJECT_BINARY_DIR}/cmakeconfig.h" ESCAPE_QUOTES @ONLY)
-#]]
 
 # Assumes your directory tree is as follows
 # CMakeLists.txt

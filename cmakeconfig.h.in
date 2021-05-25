@@ -1,0 +1,2 @@
+#cmakedefine HAVE_FILESYSTEM
+#cmakedefine HAVE_EXPERIMENTAL_FILESYSTEM
