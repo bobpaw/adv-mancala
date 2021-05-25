@@ -34,13 +34,15 @@ int main() {
 	{
 		// Test copy assignment
 		mancala::Pockets p2 = {1, 3, 4, 6, 7};
-		auto p2_copy = p2;
+		mancala::Pockets p2_copy;
+		p2_copy = p2;
 		assert(p2 == p2);
 	}
 	{
 		// Test move assignment
 		mancala::Pockets p3 = {1, 3, 4, 6, 7};
-		auto p3_move = std::move(p3);
+		mancala::Pockets p3_move;
+		p3_move = std::move(p3);
 		assert(p3_move[1] == 3);
 		assert(p3.size() == 0);
 	}
@@ -56,10 +58,12 @@ int main() {
 	{
 		mancala::Pockets p_less = {1, 2, 3, 4, 5}, p_more = {1, 2, 3, 4, 6};
 		assert(p_less < p_more);
+		assert(!(p_more < p_less));
 		assert(!(p_less == p_more));
 
 		mancala::Pockets p_lesser = {1, 3, 4}, p_greater = {1, 3, 4, 5};
 		assert(p_lesser < p_greater);
+		assert(!(p_greater < p_lesser));
 		assert(!(p_lesser == p_greater));
 	}
 	return 0;
