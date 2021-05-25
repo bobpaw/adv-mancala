@@ -155,9 +155,11 @@ bool Pockets::operator<(const Pockets& rhs) const noexcept {
 
 std::ostream& operator<<(std::ostream& out, const Pockets& p) {
 	Pockets::Pocket* pp = p.head;
-	for (Pockets::size_type i = 0; i != p.size(); pp = pp->next, ++i) {
-		out << pp->marbles << " " << std::endl;
+	for (Pockets::size_type i = 0; i != p.size() - 1; pp = pp->next, ++i) {
+		out << pp->marbles << ' ';
 	}
+
+	out << pp->marbles;
 
 	return out;
 }
