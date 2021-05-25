@@ -12,3 +12,6 @@ target_link_libraries(test_mancala PUBLIC mancala)
 
 add_executable(test_saving test_saving.cc)
 target_link_libraries(test_saving PUBLIC mancala)
+
+add_executable(test_pockets test_pockets.cc)
+target_link_libraries(test_pockets PUBLIC pockets)
