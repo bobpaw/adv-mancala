@@ -9,6 +9,36 @@ class Pockets {
 
 		Pocket(int m, Pocket* n): marbles(m), next(n) {}
 	};
+	/*
+	class PocketIterator {
+	public:
+		using value_type = Pockets::value_type;
+		using size_type = Pockets::size_type;
+
+		PocketIterator(): p{nullptr} {}
+		PocketIterator(Pocket* ptr, size_type i = 0): p{ptr}, {}
+
+		size_type index() const noexcept { return idx_; }
+		value_type& operator*() const noexcept { return p->marbles; }
+
+		PocketIterator& operator++() const noexcept {
+			p = p->next;
+			++idx_;
+			if (p == head) idx_ = 0;
+			return *this;
+		}
+
+		bool operator==(const PocketIterator& rhs) const noexcept {
+			return p == rhs.p;
+		}
+		bool operator!=(const PocketIterator& rhs) const noexcept {
+			return p != rhs.p;
+		}
+
+	private:
+		Pocket* p;
+		size_type idx_;
+	};*/
 
 public:
 	using size_type = std::size_t;
@@ -49,6 +79,27 @@ public:
 
 protected:
 	friend std::ostream& operator<<(std::ostream&, const Pockets&);
+
+	// Insert after p or at head if p is nullptr.
+	void insert_after(Pocket* p, const value_type& value) {
+		if (p) p->next = new Pocket(value, p->next);
+		else {
+			Pocket* tail = get_tail();
+			head = new Pocket(value, head);
+			if (tail)
+				tail->next = head;
+			else
+				head->next = head;
+		}
+		++size_;
+	}
+
+	/**
+	* Get the pointer before head.
+	* 
+	* @return nullptr if head is nullptr, or the pointer before head.
+	**/
+	Pocket* get_tail() const noexcept;
 
 private:
 	Pocket* head{nullptr};

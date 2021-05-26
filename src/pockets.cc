@@ -18,10 +18,17 @@ Pockets::~Pockets() noexcept { clear(); }
 
 // Reimplement to go by element pointer
 Pockets::Pockets(const Pockets& old) {
-	for (size_type i = 0; i != old.size(); ++i) append(old[i]);
+	if (old.size_ == 0) return;
+	insert_after(nullptr, old.head->marbles);
+
+	Pocket* tail = head;
+	for (Pocket* old_tail = old.head->next; old_tail != old.head;
+			 old_tail = old_tail->next) {
+		insert_after(tail, old_tail->marbles);
+		tail = tail->next;
+	}
 }
 
-// TODO: Write me
 Pockets& Pockets::operator=(const Pockets& old) {
 	for (size_type i = 0; i != size_; ++i) at(i) = old.at(i);
 	if (size_ < old.size_) {
@@ -48,29 +55,28 @@ Pockets& Pockets::operator=(Pockets&& old) noexcept {
 	return *this;
 }
 
-void Pockets::append(const value_type& value) {
-	if (head) {
-		Pocket* current = head;
-		while (current->next != head) current = current->next;
-		current->next = new Pocket(value, head);
-	} else {
-		head = new Pocket(value, nullptr);
-		head->next = head;
-	}
+Pockets::Pocket* Pockets::get_tail() const noexcept {
+	if (!head) return nullptr;
+	Pocket* p = head;
+	while (p->next != head) p = p->next;
+	return p;
+}
 
-	++size_;
+void Pockets::append(const value_type& value) {
+	insert_after(get_tail(), value);
 }
 
 void Pockets::insert(size_type pos, const value_type& value) {
 	// FIXME: Doesn't allow insertion at 0 of a size 0 list.
-	if (!(pos < size_)) throw std::out_of_range("Pockets::insert out of range");
+	if (pos > size_) throw std::out_of_range("Pockets::insert out of range");
 
-	Pocket* current = head;
-	for (size_type i = 0; i != pos; ++i) current = current->next;
-	current->next = new Pocket(value, current->next);
-	std::swap(current->marbles, current->next->marbles);
-
-	++size_;
+	if (pos == 0) {
+		insert_after(nullptr, value);
+	} else {
+		Pocket* previous = head;
+		for (size_type i = 1; i != pos; ++i) previous = previous->next;
+		insert_after(previous, value);
+	}
 }
 
 void Pockets::remove(size_type pos) {
@@ -106,8 +112,15 @@ void Pockets::remove(size_type pos) {
 }
 
 void Pockets::clear() {
-	// FIXME: Make it less slow by going through pointers
-	while (size_ != 0) remove(0);
+	Pocket *old = head, *next;
+	for (size_type i = 0; i != size_; ++i) {
+		next = old->next;
+		delete old;
+		old = next;
+	}
+
+	head = nullptr;
+	size_ = 0;
 }
 
 Pockets::value_type Pockets::at(size_type n) const noexcept {
