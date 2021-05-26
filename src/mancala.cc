@@ -10,6 +10,7 @@
 namespace {
 // Static functions, etc.
 static int modulus(int a, int b) {
+	assert(b != 0);
 	int mod = a % b;
 	if (mod < 0) return mod + b;
 	return mod;
