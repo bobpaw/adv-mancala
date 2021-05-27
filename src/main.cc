@@ -87,6 +87,15 @@ public:
 				sf::Vector2f(sf::Vector2u(tu * tileSize.x, (tv + 1) * tileSize.y));
 	}
 
+	void set_color(int x, int y, sf::Color color) {
+		sf::Vertex* quad = &m_vertices[(x + y * size.x) * 4];
+
+		quad[0].color = color;
+		quad[1].color = color;
+		quad[2].color = color;
+		quad[3].color = color;
+	}
+
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
 		// apply the transform
@@ -175,7 +184,7 @@ int main(int argc, char* argv[]) {
 	// clang-format on
 	TileMap ui(spritemap, sf::Vector2u(64, 56));
 	ui.load(ui_elements, 4, 8);
-
+	sf::FloatRect preview_button(64 * 2, 56 * 3, 64, 56);
 
 	sf::Event event;
 
@@ -197,14 +206,11 @@ int main(int argc, char* argv[]) {
 	sf::Text pocket_values("0", freesans);
 	pocket_values.setOrigin(center(pocket_values.getLocalBounds()));
 
-	mancala::Board fun_board;
-
-	for (unsigned i = 1; i < 7; ++i) {
-		fun_board[i] = 6;
-		fun_board[7 + i] = 6;
-	}
+	mancala::Board fun_board = {0, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6};
+	mancala::Board preview_board;
 
 	sf::Vector2f mouse_pos;
+	bool preview_mode = false;
 
 	while (graphics_window.isOpen()) {
 		while (graphics_window.pollEvent(event)) {
@@ -217,8 +223,21 @@ int main(int argc, char* argv[]) {
 				for (int i = 0; i < 14; ++i)
 					if (pocket_dimensions[i].contains(mouse_pos) &&
 							fun_board.on_my_side(i)) {
-						fun_board.move(i);
+						if (preview_mode)
+							preview_board = fun_board.preview(i);
+						else
+							fun_board.move(i);
 					}
+				if (preview_button.contains(mouse_pos)) {
+					if (preview_mode) {
+						map.set_color(2, 3, sf::Color::White);
+						preview_mode = false;
+					} else {
+						map.set_color(2, 3, sf::Color::Blue);
+						preview_mode = true;
+						preview_board = fun_board;
+					}
+				}
 				break;
 			default:
 				// Do nothing
@@ -228,22 +247,26 @@ int main(int argc, char* argv[]) {
 
 		for (int i = 0; i < static_cast<int>(fun_board.size()); ++i) {
 			int tile = 0;
-			if (fun_board[i] >= 5)
+			int val = preview_mode ? preview_board[i] : fun_board[i];
+			if (val >= 5)
 				tile = 15;
-			else if (fun_board[i] == 0)
+			else if (val == 0)
 				tile = -1;
 			else
-				tile = 10 + fun_board[i];
+				tile = 10 + val;
 
-			ui.set_tile(unsigned(pocket_dimensions[i].left) / 64,
-									unsigned(pocket_dimensions[i].top) / 56, tile);
+			int tx = unsigned(pocket_dimensions[i].left) / 64,
+					ty = unsigned(pocket_dimensions[i].top) / 56;
+			ui.set_tile(tx, ty, tile);
 			if (fun_board.on_my_side(i)) {
-				map.set_tile(unsigned(pocket_dimensions[i].left) / 64,
-										 unsigned(pocket_dimensions[i].top) / 56, 16);
+				map.set_tile(tx, ty, 16);
+				/* if (preview_mode)
+					map.set_color(tx, ty, sf::Color::Blue);
+				else
+					map.set_color(tx, ty, sf::Color::White); */
 			} else if (i != fun_board.my_mancala() &&
 								 i != fun_board.their_mancala()) {
-				map.set_tile(unsigned(pocket_dimensions[i].left) / 64,
-										 unsigned(pocket_dimensions[i].top) / 56, 1);
+				map.set_tile(tx, ty, 1);
 			}
 		}
 		// Yada yada nobody cares
@@ -252,7 +275,7 @@ int main(int argc, char* argv[]) {
 		graphics_window.draw(ui);
 
 		for (int i = 0; i < static_cast<int>(fun_board.size()); ++i) {
-			pocket_values.setString(std::to_string(fun_board[i]));
+			pocket_values.setString(std::to_string(preview_mode ? preview_board[i] : fun_board[i]));
 			pocket_values.setPosition(center(pocket_dimensions[i]));
 			graphics_window.draw(pocket_values);
 		}
