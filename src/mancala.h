@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <array>
+#include <initializer_list>
 #include <ostream>
 
 namespace mancala {
@@ -31,12 +33,19 @@ public:
 	 */
 	int player{0};
 
-	constexpr Board(Ruleset r = Ruleset::Capture): pockets{}, rules(r), player(0) {}
+	constexpr Board(Ruleset r = Ruleset::Capture):
+			pockets{}, rules(r), player(0) {}
+	Board(std::initializer_list<int> init): rules(Ruleset::Capture), player(0) {
+		std::copy_n(init.begin(), std::min(init.size(), pockets.size()),
+								pockets.begin());
+	}
 
-	int  operator[](std::size_t n) const noexcept { return pockets[n]; }
+	int operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }
 
-	constexpr decltype(pockets)::size_type size() const noexcept { return pockets.size(); }
+	constexpr decltype(pockets)::size_type size() const noexcept {
+		return pockets.size();
+	}
 
 	/**
 	 * Make a move.
