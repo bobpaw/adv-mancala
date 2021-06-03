@@ -7,9 +7,17 @@
 
 #include "mancala.h"
 
-namespace {
 // Static functions, etc.
-static int modulus(int a, int b) {
+namespace {
+
+/**
+ * Get a in the range [0, b).
+ *
+ * modulus(5, 14) => 5
+ * modulus(16, 14) => 2
+ * modulus(-4, 14) => 10
+ */
+constexpr int modulus(int a, int b) noexcept {
 	int mod = a % b;
 	if (mod < 0) return mod + b;
 	return mod;
@@ -17,47 +25,60 @@ static int modulus(int a, int b) {
 }  // namespace
 
 namespace mancala {
-// Function definitions, etc.
+const Board::MoveInfo Board::NullMove = {14, 14, std::forward_list<int>()};
+
+constexpr int Board::mod_pocket(int pocket) const noexcept {
+	return modulus(pocket, static_cast<int>(pockets.size()));
+}
 
 // Precondition: n is in the range [0, pockets.size()).
 // Postcondition: n is in the range [0, pockets.size()) and n is not
 // their_mancala().
 int Board::move_pieces(int n) {
 	assert(-1 < n);
-	assert(n < static_cast<int>(pockets.size()));
+	assert(n < int(pockets.size()));
 
 	int hand = pockets[n];
 	pockets[n] = 0;
 	while (hand > 0) {
-		n = modulus(n + 1, static_cast<int>(pockets.size()));
+		n = mod_pocket(n + 1);
 		if (n == their_mancala()) continue;
 		--hand;
 		++pockets[n];
 	}
 
 	assert(-1 < n);
-	assert(n < static_cast<int>(pockets.size()));
+	assert(n < int(pockets.size()));
 	assert(n != their_mancala());
 	return n;
 }
 
 int Board::move(int n) {
-	n = modulus(n, static_cast<int>(size()));
+	n = mod_pocket(n);
 
-	if (pockets[n] == 0) return -1;
+	if (!on_my_side(n) || pockets[n] == 0) return -1;
+	last_move_.pocket = n;
+	last_move_.data.clear();
 
 	switch (rules) {
 	case Ruleset::Capture:
 
+		last_move_.data.push_front(pockets[n]);
+
 		n = move_pieces(n);
+
+		last_move_.final = n;
 
 		// If n is the player's mancala, don't swap the active player.
 		if (n == my_mancala()) break;
 
 		// If on player's side and an empty pocket, perform capture.
 		if (on_my_side(n) && pockets[n] == 1) {
-			pockets[my_mancala()] += pockets[pockets.size() - n];
+			last_move_.data.push_front(pockets[pockets.size() - n]);  // std::swap?
 			pockets[pockets.size() - n] = 0;
+			pockets[my_mancala()] += last_move_.data.front();
+		} else {
+			last_move_.data.push_front(0);
 		}
 
 		swap_player();
@@ -65,7 +86,12 @@ int Board::move(int n) {
 		break;
 	case Ruleset::Avalanche:
 
-		while (n != my_mancala() && pockets[n] != 1) n = move_pieces(n);
+		while (n != my_mancala() && pockets[n] != 1) {
+			last_move_.data.push_front(pockets[n]);
+			n = move_pieces(n);
+		}
+
+		last_move_.final = n;
 
 		// If last piece didn't land in active player's mancala swap active player.
 		if (n != my_mancala()) swap_player();
@@ -73,6 +99,94 @@ int Board::move(int n) {
 	}
 	return 0;
 }
+
+int Board::reverse_move_pieces(int final, int hand) {
+	assert(-1 < final);
+	assert(final < int(pockets.size()));
+	assert(final != their_mancala());
+
+	int n = final + 1;
+	for (int h = hand; h > 0; --hand) {
+		n = mod_pocket(n - 1);
+		if (n == their_mancala()) continue;
+		--pockets[n];
+	}
+
+	pockets[n] = hand;
+
+	assert(-1 < n);
+	assert(n < int(pockets.size()));
+	assert(n != their_mancala());
+	return n;
+}
+
+
+int Board::reverse_move(int final, int hand, std::forward_list<int> data) {
+	// FIXME: Decide how reverse_move affects last_move_
+	int n = mod_pocket(final);
+
+	// Move to end.
+	if (!on_my_side(n) || pockets[n] == 0) return -1;
+	last_move_.pocket = n;
+	last_move_.hand = pockets[n];
+	// End move to end section.
+
+	switch (rules) {
+	case Ruleset::Capture:
+
+		if (n != my_mancala()) swap_player();
+
+		if (data.front() != 0) {
+			pockets[my_mancala()] -= data.front();
+			pockets[pockets.size() - n] = data.front();
+			pockets[n] = 1;
+		}
+
+		int hand = *(++data.begin());
+
+		n = reverse_move_pieces(n, hand);
+
+		// <<>>
+		n = reverse_move_pieces(n, hand);
+
+		last_move_.final = n;
+
+		// If n is the player's mancala, don't swap the active player.
+		if (n == my_mancala()) break;
+
+		// If on player's side and an empty pocket, perform capture.
+		if (on_my_side(n) && pockets[n] == 1) {
+			last_move_.data = pockets[pockets.size() - n];
+			pockets[pockets.size() - n] = 0;
+			pockets[my_mancala()] += last_move_.data;
+		}
+
+		swap_player();
+
+		break;
+	case Ruleset::Avalanche:
+		if (n != my_mancala()) swap_player();
+
+		last_move_.final = final;
+		for (auto hand : data) { n = reverse_move_pieces(n, hand); }
+
+		// <<>>
+		last_move_.data = 0;
+		while (n != my_mancala() && pockets[n] != 1) {
+			n = move_pieces(n);
+			++last_move_.data;
+		}
+
+		last_move_.final = n;
+
+		// If last piece didn't land in active player's mancala swap active player.
+		if (n != my_mancala()) swap_player();
+		break;
+	}
+	return 0;
+}
+
+void Board::unapply_move(const MoveInfo& info) { reverse_move_pieces() }
 
 void Board::save() const {
 	std::ofstream fout;
