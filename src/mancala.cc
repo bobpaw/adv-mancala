@@ -105,7 +105,7 @@ int Board::reverse_move_pieces(int final, int hand) {
 	assert(final < int(pockets.size()));
 	assert(final != their_mancala());
 
-	int n = final + 1;
+	int n = mod_pocket(final + 1);
 	for (int h = hand; h > 0; --hand) {
 		n = mod_pocket(n - 1);
 		if (n == their_mancala()) continue;
@@ -120,73 +120,30 @@ int Board::reverse_move_pieces(int final, int hand) {
 	return n;
 }
 
-
-int Board::reverse_move(int final, int hand, std::forward_list<int> data) {
-	// FIXME: Decide how reverse_move affects last_move_
-	int n = mod_pocket(final);
-
-	// Move to end.
-	if (!on_my_side(n) || pockets[n] == 0) return -1;
-	last_move_.pocket = n;
-	last_move_.hand = pockets[n];
-	// End move to end section.
+void Board::unapply_move(const MoveInfo& info) {
+	int n = mod_pocket(info.final);
 
 	switch (rules) {
 	case Ruleset::Capture:
 
 		if (n != my_mancala()) swap_player();
 
-		if (data.front() != 0) {
-			pockets[my_mancala()] -= data.front();
-			pockets[pockets.size() - n] = data.front();
+		if (info.data.front() != 0) {
+			pockets[my_mancala()] -= info.data.front();
+			pockets[pockets.size() - n] = info.data.front();
 			pockets[n] = 1;
 		}
 
-		int hand = *(++data.begin());
-
-		n = reverse_move_pieces(n, hand);
-
-		// <<>>
-		n = reverse_move_pieces(n, hand);
-
-		last_move_.final = n;
-
-		// If n is the player's mancala, don't swap the active player.
-		if (n == my_mancala()) break;
-
-		// If on player's side and an empty pocket, perform capture.
-		if (on_my_side(n) && pockets[n] == 1) {
-			last_move_.data = pockets[pockets.size() - n];
-			pockets[pockets.size() - n] = 0;
-			pockets[my_mancala()] += last_move_.data;
-		}
-
-		swap_player();
+		n = reverse_move_pieces(n, *(++info.data.begin()));
 
 		break;
 	case Ruleset::Avalanche:
 		if (n != my_mancala()) swap_player();
 
-		last_move_.final = final;
-		for (auto hand : data) { n = reverse_move_pieces(n, hand); }
-
-		// <<>>
-		last_move_.data = 0;
-		while (n != my_mancala() && pockets[n] != 1) {
-			n = move_pieces(n);
-			++last_move_.data;
-		}
-
-		last_move_.final = n;
-
-		// If last piece didn't land in active player's mancala swap active player.
-		if (n != my_mancala()) swap_player();
+		for (const auto& hand : info.data) { n = reverse_move_pieces(n, hand); }
 		break;
 	}
-	return 0;
 }
-
-void Board::unapply_move(const MoveInfo& info) { reverse_move_pieces() }
 
 void Board::save() const {
 	std::ofstream fout;

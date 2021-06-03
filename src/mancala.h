@@ -38,10 +38,9 @@ public:
 	 */
 	constexpr int mod_pocket(int pocket) const noexcept;
 
-	enum class Ruleset : int {
-		Capture = 0,
-		Avalanche = 1
-	} rules{Ruleset::Capture};
+	enum class Ruleset : int { Capture = 0, Avalanche = 1 };
+	
+	Ruleset rules{Ruleset::Capture};
 
 	/**
 	 * The active player. 0 or 1.
@@ -66,8 +65,6 @@ public:
 	 */
 	int move(int n);
 
-	int reverse_move(int n);
-
 	/**
 	 * Holds info about a move.
 	 *
@@ -79,6 +76,13 @@ public:
 		unsigned int pocket : 4;      // The pocket number of the move. [0,14)
 		unsigned int final : 4;       // The location of the final drop.
 		std::forward_list<int> data;  // See MoveInfo.
+
+		MoveInfo(): pocket(14), final(14), data() {}
+
+		template <typename ...Ts>
+		MoveInfo(int p, int f, Ts... args): pocket(p), final(f) {
+			data = {args...};
+		}
 
 		constexpr bool operator==(const MoveInfo& other) const noexcept {
 			return pocket == other.pocket && final == other.final &&
@@ -131,6 +135,7 @@ public:
 	void load();
 
 private:
+	// Holds info about the last move() call. Only move() modifies last_move_.
 	MoveInfo last_move_;
 };
 }  // namespace mancala
