@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <array>
 #include <forward_list>
+#include <initializer_list>
 #include <ostream>
 
 namespace mancala {
@@ -32,7 +34,7 @@ public:
 	constexpr int mod_pocket(int pocket) const noexcept;
 
 	enum class Ruleset : int { Capture = 0, Avalanche = 1 };
-	
+
 	Ruleset rules{Ruleset::Capture};
 
 	/**
@@ -42,6 +44,14 @@ public:
 
 	Board(Ruleset r = Ruleset::Capture):
 			pockets{}, rules(r), player(0), last_move_() {}
+
+	Board(Ruleset r, std::initializer_list<int> init):
+			rules(r), player(0), last_move_() {
+		std::copy_n(init.begin(), pockets.size(), pockets.begin());
+	}
+
+	Board(Ruleset r, std::array<int, 14> init):
+			pockets(init), rules(r), player(0), last_move_() {}
 
 	int operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }
@@ -72,7 +82,7 @@ public:
 
 		MoveInfo(): pocket(14), final(14), data() {}
 
-		template <typename ...Ts>
+		template<typename... Ts>
 		MoveInfo(int p, int f, Ts... args): pocket(p), final(f) {
 			data = {args...};
 		}
