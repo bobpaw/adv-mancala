@@ -59,83 +59,104 @@ mancala::Board rot_board(mancala::Board board, int rot = 1) {
 }
 
 int main() {
-	mancala::Board b;
 
-	b[1] = 2;
-	b[2] = 2;
-	b[3] = 2;
-	b[4] = 2;
+	{
+		mancala::Board b;
 
-	assert(test_board(b, "02222["));
+		b[1] = 2;
+		b[2] = 2;
+		b[3] = 2;
+		b[4] = 2;
 
-	b.move(2);
-	assert(test_board(b, "02033["));
-
-	b.move(1);
-	assert(test_board(b, "00143["));
-
-	b[1] = 4;
-	b.move(1);
-	assert(test_board(b, "002541["));
-
-	// Test preview
-	b.player = 0;
-	auto b2 = b.preview(3);
-	b.move(3);  // 002052111[
-	assert(b == b2);
-
-	// Test avalanche
-	mancala::Board ava_b(mancala::Board::Ruleset::Avalanche);
-	ava_b[1] = 2;
-	ava_b[2] = 3;
-	ava_b[3] = 2;
-	ava_b[4] = 2;
-
-	ava_b.move(1);
-	// Expected moves:
-	/*
-	* 0: 00 >2<3 2 2 0 0 00 000000 (initial state)
-	* 1: 00  0 4>3<2 0 0 ...
-	* 2: 00  0 4 0 3 1>1<...
-	*/
-
-	assert(test_board(ava_b, "0040311"));
-
-	// Test avalanche extra turn
-	ava_b.player = 0;
-	ava_b[1] = 4;
-	ava_b.move(1);
-	assert(ava_b.player == 0);
-
-	// Test capture extra turn
-	b.player = 0;
-	b[6] = 1;
-	b.move(6);
-	assert(b.player == 0);
-
-	// Test move fail condition
-	assert(b.move(1) == -1);
-
-	// Test capture
-	mancala::Board b5 = create_board("0002000002");
-	// 00 002000 00 020000
-	// 00 000110 00 020000
-	// 00 000100 02 000000
-	b5.move(3);
-	assert(b5[7] == 2);
-
-	// Test initialization
-	mancala::Board b3;
-
-	for (unsigned i = 1; i < 7; ++i) {
-		b3[i] = 6;
-		b3[7 + i] = 6;
+		assert(test_board(b, "02222["));
 	}
+	{
+		auto b = create_board("02222");
+		b.move(2);
+		assert(test_board(b, "02033["));
+	}
+	{
+		auto b = create_board("02033");
+		b.move(1);
+		assert(test_board(b, "00143["));
+	}
+	{
+		// Checks whether capture fails for empty adjacent pocket.
+		auto b = create_board("04143");
+		b.move(1);
+		assert(test_board(b, "002541["));
+	}
+	{
+		// Test preview
+		auto b = create_board("12345638");
+		auto b2 = b.preview(3);
+		b.move(3);  // 002052111[
+		assert(b == b2);
+	}
+	{
+		// Test avalanche
+		mancala::Board ava_b(mancala::Board::Ruleset::Avalanche);
+		ava_b[1] = 2;
+		ava_b[2] = 3;
+		ava_b[3] = 2;
+		ava_b[4] = 2;
 
-	assert(test_board(b3, "06666660666666"));
+		ava_b.move(1);
+		// Expected moves:
+		/*
+		 * 0: 00 >2<3 2 2 0 0 00 000000 (initial state)
+		 * 1: 00  0 4>3<2 0 0 ...
+		 * 2: 00  0 4 0 3 1>1<...
+		 */
 
-	// Test output function
-	mancala::Board b4 = create_board("0001020304050607080910111213", 2);
-	std::cout << b4 << std::endl;
+		assert(test_board(ava_b, "0040311"));
+	}
+	{
+		// Test avalanche extra turn
+		mancala::Board ava_b(mancala::Board::Ruleset::Avalanche);
+		ava_b[1] = 6;
+		ava_b.move(1);
+		assert(ava_b.player == 0);
+	}
+	{
+		// Test capture mode extra turn
+		auto b = mancala::Board();
+		b.player = 0;
+		b[6] = 1;
+		b.move(6);
+		assert(b.player == 0);
+	}
+	{
+		// Test move fail condition
+		auto b = mancala::Board();
+		assert(b.move(1) == -1);
+	}
+	{
+		// Test capture
+		auto b = create_board("0002000002");
+		// 00 002000 00 020000
+		// 00 000110 00 020000
+		// 00 000100 02 000000
+		b.move(3);
+		assert(b[6] == 0);
+		assert(b[7] == 3);
+		assert(b[8] == 0);
+	}
+	{
+		// Test initialization (used in main)
+		mancala::Board b3;
+
+		for (unsigned i = 1; i < 7; ++i) {
+			b3[i] = 6;
+			b3[7 + i] = 6;
+		}
+
+		assert(test_board(b3, "06666660666666"));
+	}
+	{
+		// Test output function
+		mancala::Board b4 = create_board("0001020304050607080910111213", 2);
+		std::cout << b4 << std::endl;
+	}
 	return 0;
 }

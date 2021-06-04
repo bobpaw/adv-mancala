@@ -22,13 +22,6 @@ class Board {
 	int move_pieces(int n);
 	int reverse_move_pieces(int final, int hand);
 
-	int my_mancala() const noexcept { return player == 0 ? 7 : 0; }
-	int their_mancala() const noexcept { return player == 0 ? 0 : 7; }
-	bool on_my_side(int n) const noexcept {
-		if (player == 0) return n > their_mancala() && n < my_mancala();
-		return n > their_mancala() && n < static_cast<int>(size());
-	}
-
 public:
 	/**
 	 * Force \c pocket to be in range.
@@ -133,6 +126,14 @@ public:
 
 	void save() const;
 	void load();
+
+	constexpr int my_mancala() const noexcept { return player == 0 ? 7 : 0; }
+	constexpr int their_mancala() const noexcept { return player == 0 ? 0 : 7; }
+
+	constexpr bool on_my_side(int n) const noexcept {
+		if (player == 0) return n > their_mancala() && n < my_mancala();
+		return n > their_mancala() && n < static_cast<int>(size());
+	}
 
 private:
 	// Holds info about the last move() call. Only move() modifies last_move_.
