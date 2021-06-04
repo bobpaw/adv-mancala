@@ -106,11 +106,11 @@ int Board::reverse_move_pieces(int final, int hand) {
 	assert(final < int(pockets.size()));
 	assert(final != their_mancala());
 
-	int n = mod_pocket(final + 1);
-	for (int h = hand; h > 0; --hand) {
-		n = mod_pocket(n - 1);
-		if (n == their_mancala()) continue;
+	int n = mod_pocket(final);
+	for (int h = 0; h < hand; ++h) {
 		--pockets[n];
+		n = mod_pocket(n - 1);
+		if (n == their_mancala()) n = mod_pocket(n - 1);
 	}
 
 	pockets[n] = hand;

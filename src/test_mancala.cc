@@ -59,7 +59,6 @@ mancala::Board rot_board(mancala::Board board, int rot = 1) {
 }
 
 int main() {
-
 	{
 		mancala::Board b;
 
@@ -157,6 +156,15 @@ int main() {
 		// Test output function
 		mancala::Board b4 = create_board("0001020304050607080910111213", 2);
 		std::cout << b4 << std::endl;
+	}
+
+	{
+		mancala::Board b = create_board("06666660666666");
+		mancala::Board b_copy = b;
+		b.move(2);
+		auto mf = b.last_move();
+		b.unapply_move(mf);
+		assert(b_copy == b);
 	}
 	return 0;
 }
