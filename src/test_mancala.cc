@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "mancala.h"
 
@@ -59,8 +60,6 @@ mancala::Board rot_board(mancala::Board board, int rot = 1) {
 }
 
 int main() {
-	static_assert(mancala::Board().size() == 14, "mancala::Board returns the wrong size or is improperly constexpr.");
-
 	{
 		mancala::Board b;
 
@@ -158,6 +157,60 @@ int main() {
 		// Test output function
 		mancala::Board b4 = create_board("0001020304050607080910111213", 2);
 		std::cout << b4 << std::endl;
+	}
+
+	{
+		mancala::Board b = create_board("06666660666666");
+		mancala::Board b_copy = b;
+		b.move(2);
+		auto mf = b.last_move();
+		b.unapply_move(mf);
+		assert(b_copy == b);
+	}
+
+	// More complicated apply_move/unapply_move test.
+	{
+		mancala::Board b = create_board("06666660666666");
+		auto b_copy = b;
+		std::vector<mancala::Board::MoveInfo> move_stack;
+
+		b.move(1);
+		move_stack.push_back(b.last_move());
+		b.move(3);
+		move_stack.push_back(b.last_move());
+		b.move(11);
+		move_stack.push_back(b.last_move());
+
+		b.unapply_move(move_stack.back());
+		assert(b.move_applies(move_stack.back()));
+		move_stack.pop_back();
+
+		b.unapply_move(move_stack.back());
+		move_stack.pop_back();
+
+		b_copy.apply_move(move_stack.back());
+		assert(b == b_copy);
+	}
+
+	// Unapply a capture
+	{
+		mancala::Board b(mancala::Board::Ruleset::Capture,
+										 {4, 4, 1, 2, 3, 0, 2, 6, 1, 3, 5, 6, 7, 9});
+		auto b_copy = b;
+		b.move(1);
+		b.unapply_move(b.last_move());
+
+		assert(b == b_copy);
+	}
+
+	// Avalanche unapply_move
+	{
+		mancala::Board a(mancala::Board::Ruleset::Avalanche,
+										 {0, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6});
+		auto a_copy = a;
+		a.move(3);
+		a.unapply_move(a.last_move());
+		assert(a == a_copy);
 	}
 	return 0;
 }

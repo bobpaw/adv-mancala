@@ -132,6 +132,12 @@ endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/cmakeconfig.h.in" "${PROJECT_BINARY_DIR}/cmakeconfig.h" ESCAPE_QUOTES @ONLY)
 
+if(APPLE)
+	# Fix linking error to do with -isysroot in linking above macOS 10.14+
+	# See https://stackoverflow.com/questions/54068035
+	link_directories("/usr/local/lib")
+endif()
+
 # Assumes your directory tree is as follows
 # CMakeLists.txt
 # test

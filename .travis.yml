@@ -1,7 +1,5 @@
 language: cpp
 
-cache: ccache
-
 # Only get the current repository state
 git:
   depth: false
@@ -16,18 +14,19 @@ os:
   - linux
   - osx
 
+osx_image: xcode12.2
+
 # Install requirements with apt
 addons:
   apt:
     packages:
-    - cmake # Actually already installed by default
+    - cmake
     - libsfml-dev
   homebrew:
     packages:
-    - cmake # Actually already installed by default
-    - sfml
-    - boost # Necessary until we have AppleClang 11
-    - ccache
+     - sfml
+    update: false
+
 
 # Build Matrix
 jobs:
@@ -73,7 +72,6 @@ install:
 - |-
   case $TRAVIS_OS_NAME in
     windows) $VCPKG_ROOT/vcpkg install sfml ;;
-    osx) HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml boost ccache ;;
   esac
 
 before_script:

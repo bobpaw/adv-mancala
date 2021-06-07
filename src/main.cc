@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
 	sf::Text pocket_values("0", freesans);
 	pocket_values.setOrigin(center(pocket_values.getLocalBounds()));
 
-	mancala::Board fun_board = {0, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6};
+	mancala::Board fun_board(mancala::Board::Ruleset::Capture, {0, 6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6});
 	mancala::Board preview_board;
 
 	sf::Vector2f mouse_pos;
