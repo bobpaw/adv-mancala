@@ -17,7 +17,7 @@ namespace {
  * modulus(16, 14) => 2
  * modulus(-4, 14) => 10
  */
-constexpr int modulus(int a, int b) noexcept {
+int modulus(int a, int b) noexcept {
 	int mod = a % b;
 	if (mod < 0) return mod + b;
 	return mod;
