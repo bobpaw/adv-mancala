@@ -27,7 +27,7 @@ constexpr int modulus(int a, int b) noexcept {
 namespace mancala {
 const Board::MoveInfo Board::NullMove = {14, 14, std::forward_list<int>()};
 
-constexpr int Board::mod_pocket(int pocket) const noexcept {
+int Board::mod_pocket(int pocket) const noexcept {
 	return modulus(pocket, static_cast<int>(pockets.size()));
 }
 

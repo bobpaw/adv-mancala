@@ -31,7 +31,7 @@ public:
 	 * @param pocket An integer
 	 * @return \c pocket in the range [0, pockets.size()).
 	 */
-	constexpr int mod_pocket(int pocket) const noexcept;
+	int mod_pocket(int pocket) const noexcept;
 
 	enum class Ruleset : int { Capture = 0, Avalanche = 1 };
 
@@ -56,7 +56,7 @@ public:
 	int operator[](std::size_t n) const noexcept { return pockets[n]; }
 	int& operator[](std::size_t n) noexcept { return pockets[n]; }
 
-	constexpr decltype(pockets)::size_type size() const noexcept {
+	decltype(pockets)::size_type size() const noexcept {
 		return pockets.size();
 	}
 
@@ -87,7 +87,7 @@ public:
 			data = {args...};
 		}
 
-		constexpr bool operator==(const MoveInfo& other) const noexcept {
+		bool operator==(const MoveInfo& other) const noexcept {
 			return pocket == other.pocket && final == other.final &&
 						 data == other.data;
 		}
@@ -137,10 +137,10 @@ public:
 	void save() const;
 	void load();
 
-	constexpr int my_mancala() const noexcept { return player == 0 ? 7 : 0; }
-	constexpr int their_mancala() const noexcept { return player == 0 ? 0 : 7; }
+	int my_mancala() const noexcept { return player == 0 ? 7 : 0; }
+	int their_mancala() const noexcept { return player == 0 ? 0 : 7; }
 
-	constexpr bool on_my_side(int n) const noexcept {
+	bool on_my_side(int n) const noexcept {
 		if (player == 0) return n > their_mancala() && n < my_mancala();
 		return n > their_mancala() && n < static_cast<int>(size());
 	}
