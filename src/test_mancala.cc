@@ -192,6 +192,17 @@ int main() {
 		assert(b == b_copy);
 	}
 
+	// Unapply a capture
+	{
+		mancala::Board b(mancala::Board::Ruleset::Capture,
+										 {4, 4, 1, 2, 3, 0, 2, 6, 1, 3, 5, 6, 7, 9});
+		auto b_copy = b;
+		b.move(1);
+		b.unapply_move(b.last_move());
+
+		assert(b == b_copy);
+	}
+
 	// Avalanche unapply_move
 	{
 		mancala::Board a(mancala::Board::Ruleset::Avalanche,

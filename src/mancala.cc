@@ -74,6 +74,8 @@ int Board::move(int n) {
 
 		// If on player's side and an empty pocket, perform capture.
 		if (on_my_side(n) && pockets[n] == 1 && pockets[pockets.size() - n] != 0) {
+
+			// +1 includes pockets[n].
 			last_move_.data.push_front(pockets[pockets.size() - n] + 1);
 			pockets[my_mancala()] += last_move_.data.front();
 			pockets[pockets.size() - n] = 0;
@@ -131,7 +133,9 @@ void Board::unapply_move(const MoveInfo& info) {
 
 		if (info.data.front() != 0) {
 			pockets[my_mancala()] -= info.data.front();
-			pockets[pockets.size() - n] = info.data.front();
+
+			// Capture quantity includes both captured and capturing pieces.
+			pockets[pockets.size() - n] = info.data.front() - 1;
 			pockets[n] = 1;
 		}
 
