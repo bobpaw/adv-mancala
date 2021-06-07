@@ -21,9 +21,12 @@ addons:
   apt:
     packages:
     - cmake # Actually already installed by default
+    - libsfml-dev
   homebrew:
     packages:
     - cmake # Actually already installed by default
+    - sfml
+    - boost # Necessary until we have AppleClang 11
     - ccache
 
 # Build Matrix
@@ -31,12 +34,22 @@ jobs:
   fast_finish: true
   include:
   - os: windows
-    env: CMAKE_GENERATOR="Visual Studio 15 2017"
+    env: CMAKE_GENERATOR="Visual Studio 15 2017" VCPKG_DEFAULT_TRIPLET=x86-windows
+    cache:
+    - ccache
+    - directories:
+      - $LOCALAPPDATA/vcpkg/archives
   - os: windows
-    env: CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
+    env: CMAKE_GENERATOR="Visual Studio 15 2017 Win64" VCPKG_DEFAULT_TRIPLET=x64-windows
+    cache:
+    - ccache
+    - directories:
+      - $LOCALAPPDATA/vcpkg/archives
   - stage: Coverage
     os: linux
-    compiler: g++
+    compiler:
+    - gcc
+    - clang
     cache: false
     before_script:
     - pip install --user cpp-coveralls
@@ -49,7 +62,19 @@ jobs:
     after_success:
     - coveralls -e "doc/" -E ".*test.*" -E ".*CMakeFiles.*"
 
-
+before_install:
+- |-
+  if test $TRAVIS_OS_NAME = "windows"; then
+    export VCPKG_ROOT="$HOME/vcpkg"
+    git clone https://github.com/microsoft/vcpkg ~/vcpkg
+    powershell ~/vcpkg/bootstrap-vcpkg.bat
+  fi
+install:
+- |-
+  case $TRAVIS_OS_NAME in
+    windows) $VCPKG_ROOT/vcpkg install sfml ;;
+    osx) HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml boost ccache ;;
+  esac
 
 before_script:
   - cmake --version
@@ -58,5 +83,5 @@ before_script:
 # Actually check if it works
 script:
   - cmake -DCMAKE_BUILD_TYPE=Debug ..
-  - cmake --build .
+  - VERBOSE=1 cmake --build .
   - ctest -j2 -V -C Debug

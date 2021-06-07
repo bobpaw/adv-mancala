@@ -136,7 +136,7 @@ public:
 
 	void save() const;
 	void load();
-
+  
 	int my_mancala() const noexcept { return player == 0 ? 7 : 0; }
 	int their_mancala() const noexcept { return player == 0 ? 0 : 7; }
 
