@@ -16,6 +16,8 @@ os:
   - linux
   - osx
 
+osx_image: xcode12.2
+
 # Install requirements with apt
 addons:
   apt:
@@ -73,7 +75,7 @@ install:
 - |-
   case $TRAVIS_OS_NAME in
     windows) $VCPKG_ROOT/vcpkg install sfml ;;
-    osx) HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml boost ccache ;;
+    osx) echo 1 # HOMEBREW_NO_AUTO_UPDATE=1 brew install cmake sfml boost ccache ;;
   esac
 
 before_script:
