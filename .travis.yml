@@ -1,7 +1,5 @@
 language: cpp
 
-cache: ccache
-
 # Only get the current repository state
 git:
   depth: false
@@ -29,7 +27,6 @@ addons:
 #    - cmake # CMake 3.18.4 installed by default for xcode12.2 image.
     - sfml
 #    - boost # Version 1.74 installed by default for xcode12.2 image.
-    - ccache
 
 # Build Matrix
 jobs:
