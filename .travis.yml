@@ -26,9 +26,9 @@ addons:
     - libsfml-dev
   homebrew:
     packages:
-    - cmake # Actually already installed by default
+    - cmake@3.8 # CMake 3.18.4 installed by default for xcode12.2 image.
     - sfml
-    - boost # Necessary until we have AppleClang 11
+#    - boost # Version 1.74 installed by default for xcode12.2 image.
     - ccache
 
 # Build Matrix
